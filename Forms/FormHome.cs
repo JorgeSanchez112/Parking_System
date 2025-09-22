@@ -380,6 +380,11 @@ namespace Parking
         private void setValueToLabel6(String txt) => label6.Text = txt;
         private void showLabel6() => label6.Visible = true;
 
+        private void FormHome_Load(object sender, EventArgs e)
+        {
+
+        }
+
         private void loadParkingData()
         {
             InfoParkingService _infoParkingService = new InfoParkingService();

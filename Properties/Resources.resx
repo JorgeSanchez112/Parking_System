@@ -124,6 +124,18 @@
   <data name="Bicicleta" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Bicicleta.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="car-insurance-16_16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\car-insurance-16_16.ico;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="car-insurance-32_32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\car-insurance-32_32.ico;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="car-insurance-48_48" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\car-insurance-48_48.ico;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="car-insurance-256_256" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\car-insurance-256_256.ico;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
   <data name="Moto" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Moto.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>

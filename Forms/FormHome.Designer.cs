@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormHome));
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.ajsutesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.listaVehiculosToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -460,8 +461,10 @@
             this.ClientSize = new System.Drawing.Size(1325, 763);
             this.Controls.Add(this.tableLayoutPanel1);
             this.Controls.Add(this.menuStrip1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "FormHome";
             this.Text = "Form1";
+            this.Load += new System.EventHandler(this.FormHome_Load);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.flowLayoutPanel1.ResumeLayout(false);

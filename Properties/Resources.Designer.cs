@@ -81,6 +81,46 @@ namespace Parking.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] car_insurance_16_16 {
+            get {
+                object obj = ResourceManager.GetObject("car-insurance-16_16", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] car_insurance_256_256 {
+            get {
+                object obj = ResourceManager.GetObject("car-insurance-256_256", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] car_insurance_32_32 {
+            get {
+                object obj = ResourceManager.GetObject("car-insurance-32_32", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] car_insurance_48_48 {
+            get {
+                object obj = ResourceManager.GetObject("car-insurance-48_48", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap Moto {
