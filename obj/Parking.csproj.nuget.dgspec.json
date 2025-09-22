@@ -67,6 +67,10 @@
             "System.Runtime.CompilerServices.Unsafe": {
               "target": "Package",
               "version": "[6.1.2, )"
+            },
+            "ZXing.Net": {
+              "target": "Package",
+              "version": "[0.16.10, )"
             }
           }
         }

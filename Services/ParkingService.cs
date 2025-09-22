@@ -16,6 +16,9 @@ namespace Parking.Services
         private readonly VehiclesRepository vehiclesRepo = new VehiclesRepository();
         private readonly CheckinsRepository checkinsRepo = new CheckinsRepository();
         private readonly TicketsRepository ticketsRepo = new TicketsRepository();
+        private readonly BillsRepository billsRepository = new BillsRepository();
+
+        private readonly PrintData printData = new PrintData();
 
         public void RegisterVehicleCheckin(Vehicles vehicles, Checkins checkins, Tickets tickets)
         {
@@ -52,8 +55,25 @@ namespace Parking.Services
                     }
                 }
             }
-
-
         }
+
+        public int calculateParkingCost(int elapsedMinutes, int vehicleFee, Vehicles vehicle)
+        {
+
+            if(vehicle != null)
+            {
+
+                return (elapsedMinutes * vehicleFee);
+            }
+
+            return 0;
+            
+        }
+
+        public int getElapsedMinutes(DateTime currentTime, DateTime entryTime)
+        {
+            return (int)Math.Ceiling((currentTime - entryTime).TotalMinutes);
+        }
+
     }
 }

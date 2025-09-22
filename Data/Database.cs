@@ -64,7 +64,6 @@ namespace Parking.Data
                         Checkin_id INTEGER NOT NULL,
                         Parking_id INTEGER NOT NULL,
                         Codebar TEXT UNIQUE,
-                        Release_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                         FOREIGN KEY (Checkin_id) REFERENCES checkins(Id),
                         FOREIGN KEY (Parking_id) REFERENCES info_parking(Id)
                     )");

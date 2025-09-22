@@ -12,11 +12,8 @@ namespace Parking.Services
     {
         private readonly BillsRepository _billsRepository = new BillsRepository();
 
-        public void createInfoParking(Bills bills)
+        public void createBill(Bills bills)
         {
-            if (bills.Id < 0)
-                throw new Exception("El checkinId es obligatorio.");
-
             _billsRepository.insert(bills);
         }
 
@@ -29,6 +26,16 @@ namespace Parking.Services
 
             _billsRepository.update(bills);
 
+        }
+
+        public PrintData getPrintData(int id)
+        {
+            return _billsRepository.getPrintDataForBill(id);
+        }
+
+        public int getLastIndex()
+        {
+            return _billsRepository.GetLastBillId();
         }
 
     }

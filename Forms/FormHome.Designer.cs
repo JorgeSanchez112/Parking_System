@@ -52,6 +52,8 @@
             this.buttonPayed = new System.Windows.Forms.Button();
             this.buttonSaveVehicle = new System.Windows.Forms.Button();
             this.labelMessageError = new System.Windows.Forms.Label();
+            this.textBoxScanner = new System.Windows.Forms.TextBox();
+            this.buttonFocuScanner = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).BeginInit();
@@ -222,7 +224,7 @@
             this.label4.Size = new System.Drawing.Size(296, 36);
             this.label4.TabIndex = 7;
             this.label4.Text = "Tiempo transcurrido: ";
-            this.label4.Click += new System.EventHandler(this.label4_Click_1);
+            this.label4.Visible = false;
             // 
             // label6
             // 
@@ -250,6 +252,7 @@
             this.textBox1.Size = new System.Drawing.Size(126, 24);
             this.textBox1.TabIndex = 11;
             this.textBox1.Visible = false;
+            this.textBox1.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
             // 
             // tableLayoutPanel1
             // 
@@ -288,6 +291,8 @@
             this.tableLayoutPanel1.Controls.Add(this.buttonPayed, 11, 18);
             this.tableLayoutPanel1.Controls.Add(this.buttonSaveVehicle, 11, 12);
             this.tableLayoutPanel1.Controls.Add(this.labelMessageError, 7, 2);
+            this.tableLayoutPanel1.Controls.Add(this.textBoxScanner, 19, 1);
+            this.tableLayoutPanel1.Controls.Add(this.buttonFocuScanner, 18, 12);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 24);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -340,6 +345,8 @@
             this.labelElapsedValue.Size = new System.Drawing.Size(111, 29);
             this.labelElapsedValue.TabIndex = 15;
             this.labelElapsedValue.Text = "02:10:30";
+            this.labelElapsedValue.Visible = false;
+            this.labelElapsedValue.Click += new System.EventHandler(this.labelElapsedValue_Click);
             // 
             // label7
             // 
@@ -352,6 +359,7 @@
             this.label7.Size = new System.Drawing.Size(101, 36);
             this.label7.TabIndex = 14;
             this.label7.Text = "Costo:";
+            this.label7.Visible = false;
             // 
             // labelCostValue
             // 
@@ -363,6 +371,7 @@
             this.labelCostValue.Size = new System.Drawing.Size(184, 29);
             this.labelCostValue.TabIndex = 16;
             this.labelCostValue.Text = "labelCostValue";
+            this.labelCostValue.Visible = false;
             // 
             // buttonGenerateBill
             // 
@@ -376,6 +385,8 @@
             this.buttonGenerateBill.TabIndex = 17;
             this.buttonGenerateBill.Text = "Generar factura";
             this.buttonGenerateBill.UseVisualStyleBackColor = true;
+            this.buttonGenerateBill.Visible = false;
+            this.buttonGenerateBill.Click += new System.EventHandler(this.buttonGenerateBill_Click);
             // 
             // buttonPayed
             // 
@@ -389,6 +400,8 @@
             this.buttonPayed.TabIndex = 18;
             this.buttonPayed.Text = "Factura pagada";
             this.buttonPayed.UseVisualStyleBackColor = true;
+            this.buttonPayed.Visible = false;
+            this.buttonPayed.Click += new System.EventHandler(this.buttonPayed_Click);
             // 
             // buttonSaveVehicle
             // 
@@ -419,6 +432,26 @@
             this.labelMessageError.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.labelMessageError.Visible = false;
             this.labelMessageError.Click += new System.EventHandler(this.labelMessageError_Click);
+            // 
+            // textBoxScanner
+            // 
+            this.textBoxScanner.Location = new System.Drawing.Point(1257, 39);
+            this.textBoxScanner.Name = "textBoxScanner";
+            this.textBoxScanner.Size = new System.Drawing.Size(65, 20);
+            this.textBoxScanner.TabIndex = 21;
+            // 
+            // buttonFocuScanner
+            // 
+            this.buttonFocuScanner.AutoSize = true;
+            this.tableLayoutPanel1.SetColumnSpan(this.buttonFocuScanner, 2);
+            this.buttonFocuScanner.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.buttonFocuScanner.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
+            this.buttonFocuScanner.Location = new System.Drawing.Point(1191, 435);
+            this.buttonFocuScanner.Name = "buttonFocuScanner";
+            this.buttonFocuScanner.Size = new System.Drawing.Size(131, 30);
+            this.buttonFocuScanner.TabIndex = 22;
+            this.buttonFocuScanner.Text = "Escanear";
+            this.buttonFocuScanner.UseVisualStyleBackColor = true;
             // 
             // FormHome
             // 
@@ -473,6 +506,8 @@
         private System.Windows.Forms.Button buttonPayed;
         private System.Windows.Forms.Button buttonSaveVehicle;
         private System.Windows.Forms.Label labelMessageError;
+        private System.Windows.Forms.TextBox textBoxScanner;
+        private System.Windows.Forms.Button buttonFocuScanner;
     }
 }
 

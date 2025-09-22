@@ -37,5 +37,10 @@ namespace Parking.Models
             set => _state = value?.Trim();
         }
 
+        public VehicleType VehicleType { get; set; }
+        public Vehicles Vehicle { get; set; }
+        public Tickets Ticket { get; set; }
+        public InfoParking InfoParking { get; set; }
+
     }
 }

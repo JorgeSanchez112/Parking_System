@@ -22,5 +22,21 @@ namespace Parking
             _ticketsRepository.delete(id);
         }
 
+        public int getIdByCodeBar(String codebar)
+        {
+            return _ticketsRepository.getIdByCodeBar(codebar);
+        }
+
+
+        public PrintData getPrintData(int id)
+        {
+            return _ticketsRepository.getPrintDataForTicket(id);
+        }
+
+        public int getLastIndex()
+        {
+            return _ticketsRepository.GetLastTicketId();
+        }
+
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Parking.Models;
 using Parking.Services;
+using Parking.Utils;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -30,6 +31,13 @@ namespace Parking.Forms
         {
             loadParkingData();
             loadVehiclesTypeData();
+            if (!LogoManager.isLogoPathEmpty())
+            {
+                pictureBox1.Image = Image.FromFile(LogoManager.getLogoPath());
+                pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
+            }
+                
+
             blockInfoParkinfChanged();
         }
 
@@ -239,6 +247,16 @@ namespace Parking.Forms
             if (_infoParkingService.hasNitChanged(data[0].Nit, INITIAL_NIT))
                 textBoxNit.Enabled = false;
 
+        }
+
+        private void buttonSelect_Click(object sender, EventArgs e)
+        {
+            String savedPath = LogoManager.uploadAndSaveLogo();
+            if (!String.IsNullOrEmpty(savedPath))
+            {
+                pictureBox1.Image = LogoManager.LoadLogo();
+                MessageBox.Show("Logo actualizado con exito");
+            }
         }
     }
 }

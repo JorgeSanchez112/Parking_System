@@ -40,7 +40,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>x86</PlatformTarget>
-    <LangVersion>7.3</LangVersion>
+    <LangVersion>latest</LangVersion>
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
@@ -138,6 +138,7 @@
     <Compile Include="Models\Checkins.cs" />
     <Compile Include="Models\CheckinsStateCode.cs" />
     <Compile Include="Models\InfoParking.cs" />
+    <Compile Include="Models\PrintData.cs" />
     <Compile Include="Models\Tickets.cs" />
     <Compile Include="Models\Vehicles.cs" />
     <Compile Include="Models\VehicleStateCode.cs" />
@@ -153,6 +154,8 @@
     <Compile Include="Services\VehiclesService.cs" />
     <Compile Include="Services\VehiclesTypesService.cs" />
     <Compile Include="Utils\BarcodeHelper.cs" />
+    <Compile Include="Utils\LogoManager.cs" />
+    <Compile Include="Utils\PrintHelper.cs" />
     <EmbeddedResource Include="Forms\FormHome.resx">
       <DependentUpon>FormHome.cs</DependentUpon>
     </EmbeddedResource>
@@ -185,7 +188,9 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include=".gitignore" />
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Data.Sqlite">
       <Version>9.0.9</Version>
@@ -204,6 +209,9 @@
     </PackageReference>
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe">
       <Version>6.1.2</Version>
+    </PackageReference>
+    <PackageReference Include="ZXing.Net">
+      <Version>0.16.10</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

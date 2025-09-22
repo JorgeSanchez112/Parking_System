@@ -19,6 +19,22 @@ namespace Parking.Services
             Refresh();
         }
 
+        private static readonly Dictionary<String, String> VehicleTypeMap = new Dictionary<string, string>
+        {
+            { "Car", "Carrro" },
+            { "Motorbike", "Moto" },
+            { "Bike" , "Bicicleta"}
+
+        };
+
+        public String GetVehicleTypeSpanish(String vehicleTypeEnglish)
+        {
+            if (String.IsNullOrEmpty(vehicleTypeEnglish))
+                return "N/A";
+
+            return VehicleTypeMap.ContainsKey(vehicleTypeEnglish) ? VehicleTypeMap[vehicleTypeEnglish] : vehicleTypeEnglish;
+        }
+
         /// <summary>
         /// Recarga los tipos de vehículos desde la base de datos en el diccionario.
         /// </summary>

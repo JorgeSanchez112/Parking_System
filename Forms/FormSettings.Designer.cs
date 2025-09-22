@@ -280,6 +280,7 @@
             this.buttonSelect.TabIndex = 19;
             this.buttonSelect.Text = "Seleccionar..";
             this.buttonSelect.UseVisualStyleBackColor = true;
+            this.buttonSelect.Click += new System.EventHandler(this.buttonSelect_Click);
             // 
             // textBoxNit
             // 

@@ -27,6 +27,19 @@ namespace Parking.Data
             }
         }
 
+        public int GetLastTicketId()
+        {
+            using (var con = DbConnectionFactory.GetConnection())
+            {
+                con.Open();
+                var cmd = con.CreateCommand();
+                cmd.CommandText = "SELECT IFNULL(MAX(Id), 0) FROM tickets;";
+
+                object result = cmd.ExecuteScalar();
+                return Convert.ToInt32(result);
+            }
+        }
+
         public List<Tickets> GetAll()
         {
             var list = new List<Tickets>();
@@ -54,7 +67,6 @@ namespace Parking.Data
             return list;
 
         }
-
 
         public void update(Tickets tickets)
         {
@@ -86,6 +98,97 @@ namespace Parking.Data
                 cmd.ExecuteNonQuery();
             }
         }
+
+        public int getIdByCodeBar(String codebar)
+        {
+            int ticketId = -1;// valueTrap
+
+            using (var connection = DbConnectionFactory.GetConnection())
+            {
+                connection.Open();
+
+                string query = "SELECT Id FROM Tickets WHERE Codebar = @Codebar LIMIT 1";
+                using (var command = new SqliteCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@Codebar", codebar);
+
+                    var result = command.ExecuteScalar();
+                    if (result != null && result != DBNull.Value)
+                    {
+                        ticketId = Convert.ToInt32(result);
+                    }
+                }
+            }
+
+            return ticketId;
+        }
+
+        public PrintData getPrintDataForTicket(int ticketId)
+        {
+            using (var con = DbConnectionFactory.GetConnection())
+            {
+                con.Open();
+
+                var cmd = con.CreateCommand();
+                cmd.CommandText = @"
+                    SELECT 
+                        ip.Name_parking,
+                        ip.Address,
+                        ip.Nit,
+                        ip.Ticket_info,
+                        vt.Name AS VehicleType,
+                        vt.Fee,
+                        v.License_plate,
+                        v.Owner_id,
+                        c.Id as Checkin_id,
+                        c.EntryTime,
+                        c.State as Checkin_State,
+                        t.Id,
+                        t.Codebar
+                    FROM tickets t
+                    INNER JOIN checkins c ON t.Checkin_id = c.Id
+                    INNER JOIN vehicles v ON c.Vehicle_id = v.Id
+                    INNER JOIN vehicles_types vt ON v.Type_id = vt.Id
+                    INNER JOIN info_parking ip ON t.Parking_id = ip.Id
+                    WHERE t.Id = @TicketId;
+                ";
+
+                cmd.Parameters.AddWithValue("@TicketId", ticketId);
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        var entryTime = reader["EntryTime"] != DBNull.Value
+                                        ? Convert.ToDateTime(reader["EntryTime"])
+                                        : DateTime.MinValue;
+
+                        return new PrintData
+                        {
+                            ParkingName = reader["Name_parking"]?.ToString() ?? "",
+                            ParkingAddress = reader["Address"]?.ToString() ?? "",
+                            ParkingNit = reader["Nit"]?.ToString() ?? "",
+                            TicketInfo = reader["Ticket_info"]?.ToString() ?? "",
+                            CheckinId = reader["Checkin_id"] != DBNull.Value ? Convert.ToInt32(reader["Checkin_id"]) : 0,
+
+                            VehicleType = reader["VehicleType"]?.ToString() ?? "",
+                            FeePerMinute = reader["Fee"] != DBNull.Value ? Convert.ToInt32(reader["Fee"]) : 0,
+                            LicensePlate = reader["License_plate"].ToString() ?? "",
+                            OwnerId = reader["Owner_id"].ToString() ?? "",
+                            VehicleInfo = !string.IsNullOrWhiteSpace(reader["License_plate"]?.ToString())
+                                        ? reader["License_plate"].ToString()
+                                        : (reader["Owner_id"]?.ToString() ?? ""),
+
+                            EntryTime = entryTime,
+                            CheckinState = reader["Checkin_State"].ToString() ?? "",
+                            TicketCode = reader["Codebar"]?.ToString() ?? ""
+                        };
+                    }
+                }
+                return null;
+            }
+        }
+
 
     }
 }

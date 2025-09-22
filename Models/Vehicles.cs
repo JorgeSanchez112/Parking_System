@@ -21,7 +21,7 @@ namespace Parking.Models
         public String License_plate
         {
             get => _license_plate;
-            set => _license_plate = value?.Trim();
+            set => _license_plate = value?.Trim().ToUpper();
         }
 
         private String _owner_id;

@@ -24,3 +24,5 @@ C:\Users\halo2\Desktop\Parking\obj\x86\Debug\Parking.csproj.Up2Date
 C:\Users\halo2\Desktop\Parking\obj\x86\Debug\Parking.exe
 C:\Users\halo2\Desktop\Parking\obj\x86\Debug\Parking.pdb
 C:\Users\halo2\Desktop\Parking\obj\x86\Debug\Parking.exe.config
+C:\Users\halo2\Desktop\Parking\bin\x86\Debug\zxing.dll
+C:\Users\halo2\Desktop\Parking\bin\x86\Debug\zxing.presentation.dll

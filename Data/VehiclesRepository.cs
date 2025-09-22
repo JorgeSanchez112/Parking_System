@@ -19,8 +19,8 @@ namespace Parking.Data
 
                 cmd.CommandText = @"INSERT INTO vehicles (License_plate, Owner_id, Type_id, State) VALUES (@plate, @owner, @type, @state);";
 
-                cmd.Parameters.AddWithValue("@plate", vehicles.License_plate);
-                cmd.Parameters.AddWithValue("@owner", vehicles.Owner_id);
+                cmd.Parameters.AddWithValue("@plate", String.IsNullOrEmpty(vehicles.License_plate) ? DBNull.Value : vehicles.License_plate);
+                cmd.Parameters.AddWithValue("@owner", String.IsNullOrEmpty(vehicles.Owner_id) ? DBNull.Value : vehicles.Owner_id);
                 cmd.Parameters.AddWithValue("@type", vehicles.Type_id);
                 cmd.Parameters.AddWithValue("@state", vehicles.State = "activo");
 
@@ -94,7 +94,7 @@ namespace Parking.Data
             {
                 con.Open();
                 var cmd = con.CreateCommand();
-                cmd.CommandText = "SELECT State From Vehicles WHERE  License_plate = @plate";
+                cmd.CommandText = "SELECT State From Vehicles WHERE License_plate = @plate";
                 cmd.Parameters.AddWithValue("@plate", plate);
 
                 using (var reader = cmd.ExecuteReader())
@@ -113,21 +113,45 @@ namespace Parking.Data
             return VehicleStateCode.inactivo;
         }
 
-        public void Update(Vehicles vehicles)
+        public VehicleStateCode GetStateByOwnerId(String _ownerId)
+        {
+            var list = new List<Vehicles>();
+
+            using (var con = DbConnectionFactory.GetConnection())
+            {
+                con.Open();
+                var cmd = con.CreateCommand();
+                cmd.CommandText = "SELECT State From Vehicles WHERE License_plate = @plate";
+                cmd.Parameters.AddWithValue("@ownerId", _ownerId);
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        String stateStr = reader.GetString(0);
+
+                        if (Enum.TryParse<VehicleStateCode>(stateStr, true, out var stateEnum))
+                            return stateEnum;
+                    }
+
+                }
+            }
+
+            return VehicleStateCode.inactivo;
+        }
+
+        public void UpdateStateByLicensePlate(Vehicles vehicles)
         {
            using (var con = DbConnectionFactory.GetConnection())
            {
                con.Open();
                var cmd = con.CreateCommand();
 
-               cmd.CommandText = @"UPDATE vehicles SET License_plate=@plate, Owner_id=@owner, Type_id=@type, State=@state WHERE Id=@id";
-               cmd.Parameters.AddWithValue("@id", vehicles.Id);
+               cmd.CommandText = @"UPDATE vehicles SET State=@state WHERE License_plate=@plate";
                cmd.Parameters.AddWithValue("@plate", vehicles.License_plate);
-               cmd.Parameters.AddWithValue("@owner", vehicles.Owner_id);
-               cmd.Parameters.AddWithValue("@type", vehicles.Type_id);
-               cmd.Parameters.AddWithValue("@state", vehicles.State);
+                cmd.Parameters.AddWithValue("@state", vehicles.State);
 
-               cmd.ExecuteNonQuery();
+                cmd.ExecuteNonQuery();
            }
         }
 

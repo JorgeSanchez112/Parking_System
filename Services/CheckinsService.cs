@@ -24,6 +24,11 @@ namespace Parking.Services
 
         }
 
+        public void setCheckinState(Checkins _checkins)
+        {
+            _checkinsRepository.SetCheckinState(_checkins.Id, _checkins.State);
+        }
+
 
     }
 }
