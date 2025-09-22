@@ -41,14 +41,26 @@ namespace Parking.Utils
 
         public static Image LoadLogo()
         {
-            if (File.Exists(logoFullPath))
+            if (!File.Exists(logoFullPath))
+                return null;
+
+            try
             {
-                using (var fs = new FileStream(logoFullPath, FileMode.Open, FileAccess.Read))
+                using (var fs = new FileStream(logoFullPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                 {
-                    return Image.FromStream(fs);
+                    // Crea una copia interna de la imagen para que el archivo no quede bloqueado
+                    using (var tempImg = Image.FromStream(fs))
+                    {
+                        return new Bitmap(tempImg);
+                    }
                 }
             }
-            return null;
+            catch (Exception ex)
+            {
+                // Opcional: log del error
+                Console.WriteLine($"Error loading logo: {ex.Message}");
+                return null;
+            }
         }
 
         public static String getLogoPath()

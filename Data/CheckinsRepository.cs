@@ -85,8 +85,7 @@ namespace Parking.Data
                         Tickets ticket = new Tickets
                         {
                             Id = reader.GetInt32(reader.GetOrdinal("TicketId")),
-                            Codebar = reader.GetString(reader.GetOrdinal("Codebar")),
-                            Release_date = reader.GetDateTime(reader.GetOrdinal("TicketReleaseDate"))
+                            Codebar = reader.GetString(reader.GetOrdinal("Codebar"))
                         };
 
                         InfoParking infoParking = new InfoParking

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -31,12 +32,21 @@ namespace Parking.Forms
         {
             loadParkingData();
             loadVehiclesTypeData();
+
+            var logo = LogoManager.LoadLogo();
+
             if (!LogoManager.isLogoPathEmpty())
             {
-                pictureBox1.Image = Image.FromFile(LogoManager.getLogoPath());
+                pictureBox1.Image?.Dispose(); // libera la imagen anterior si existía
+                pictureBox1.Image = logo;
                 pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
             }
-                
+            else
+            {
+                // Mostrar imagen por defecto o dejar vacío
+                pictureBox1.Image = null;
+            }
+
 
             blockInfoParkinfChanged();
         }

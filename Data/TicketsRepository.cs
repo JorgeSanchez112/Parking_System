@@ -17,11 +17,10 @@ namespace Parking.Data
             {
                 cmd.Transaction = tran;
 
-                cmd.CommandText = @"INSERT INTO tickets (Checkin_id, Parking_id, Codebar, Release_date) VALUES (@checkin_id, @parking_id, @codebar, @release_date)";
+                cmd.CommandText = @"INSERT INTO tickets (Checkin_id, Parking_id, Codebar) VALUES (@checkin_id, @parking_id, @codebar)";
                 cmd.Parameters.AddWithValue("@checkin_id", tickets.Checkin_id);
                 cmd.Parameters.AddWithValue("@parking_id", tickets.Parking_id);
                 cmd.Parameters.AddWithValue("@codebar", tickets.Codebar);
-                cmd.Parameters.AddWithValue("@release_date", tickets.Release_date);
 
                 cmd.ExecuteNonQuery();
             }
