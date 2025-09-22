@@ -17,7 +17,7 @@ namespace Parking
         {
 
             //Initialize DB
-            Database.DeleteDatabase();
+            Database.Initialize();
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
