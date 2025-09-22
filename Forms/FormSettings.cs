@@ -37,13 +37,13 @@ namespace Parking.Forms
 
             if (!LogoManager.isLogoPathEmpty())
             {
-                pictureBox1.Image?.Dispose(); // libera la imagen anterior si existía
+                pictureBox1.Image?.Dispose(); // release previous image
                 pictureBox1.Image = logo;
                 pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
             }
             else
             {
-                // Mostrar imagen por defecto o dejar vacío
+                // show image by default or leave empty
                 pictureBox1.Image = null;
             }
 

@@ -28,6 +28,26 @@ namespace Parking.Services
             return result;
         }
 
+        public bool validateOwnerExist(String ownerId)
+        {
+            return _vehiclesRepository.existsByOwnerId(ownerId);
+        }
+
+        public int getIdAccordingToLicensePlate(String licensePlate)
+        {
+            return _vehiclesRepository.GetIdByLicensePlate(licensePlate);
+        }
+
+        public Vehicles getByLicensePlate(String licensePlate)
+        {
+        return _vehiclesRepository.GetByLicensePlate(licensePlate);
+        }
+
+        public Vehicles getByOwnerId(String ownerId)
+        {
+            return _vehiclesRepository.GetByOwnerId(ownerId);
+        }
+
         public bool validateLicensePlateExist(String plate)
         {
             if (plate == null)

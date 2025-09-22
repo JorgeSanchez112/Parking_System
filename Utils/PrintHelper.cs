@@ -101,10 +101,12 @@ namespace Parking.Utils
                 g.DrawString($"Pago total: {_printData.TotalPay}", fontNormal, Brushes.Black, new PointF(10, y));
                 y += 20;
 
-                if (!LogoManager.isLogoPathEmpty())
+                var logo = LogoManager.LoadLogo();
+                if (logo != null)
                 {
-                    g.DrawImage(Image.FromFile(LogoManager.getLogoPath()), new Rectangle(50, y, 120, 60));
+                    g.DrawImage(logo, new Rectangle(50, y, 120, 60));
                     y += 70;
+                    logo.Dispose(); // release copy
                 }
 
                 y += DrawWrappedText(g, _printData.BillInfo ?? "", fontNormal, Brushes.Black, 10, y, e.PageBounds.Width - 20) + 10;

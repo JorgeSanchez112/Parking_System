@@ -57,6 +57,41 @@ namespace Parking.Services
             }
         }
 
+        public void RegisterCheckin(int idVehicle , Checkins checkins, Tickets tickets)
+        {
+            using (var con = DbConnectionFactory.GetConnection())
+            {
+                con.Open();
+                using (var tran = con.BeginTransaction())
+                {
+                    try
+                    {
+
+                        checkins.Vehicle_id = idVehicle;
+                        if (checkins.Vehicle_id < 0)
+                            throw new Exception("El vehicle id no puede ser menor a 0.");
+
+                        // 1. Insert checkin
+                        long checkinId = checkinsRepo.insert(con, tran, checkins);
+
+                        tickets.Checkin_id = (int)checkinId;
+                        if (tickets.Checkin_id < 0)
+                            throw new Exception("El checkin id no puede ser menor a 0.");
+
+                        // 2. Insert ticket
+                        ticketsRepo.insert(con, tran, tickets);
+
+                        tran.Commit(); // Everything OK
+                    }
+                    catch
+                    {
+                        tran.Rollback(); // If something fail, everything is undone
+                        throw;
+                    }
+                }
+            }
+        }
+
         public int calculateParkingCost(int elapsedMinutes, int vehicleFee, Vehicles vehicle)
         {
 

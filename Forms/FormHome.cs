@@ -255,13 +255,10 @@ namespace Parking
 
             bool vehicleWithMotor = _vehiclesService.hasTypeVehicleLicensePlate(currentTypeVehicle);
 
-            string licensePlate = vehicleWithMotor ? valueToSaveUsingVehicleWithMotor(vehicleWithMotor) : null;
-            string ownerId = !vehicleWithMotor ? valueToSaveUsingVehicleWithoutMotor(vehicleWithMotor) : null;
+            string licensePlate = vehicleWithMotor ? valueToSaveUsingVehicleWithMotor(true) : null;
+            string ownerId = !vehicleWithMotor ? valueToSaveUsingVehicleWithoutMotor(false) : null;
 
             // === Validations ===
-            if (_vehiclesService.isTextBoxLengthValid(textBox1, 6))
-                ; // (this condition seems incomplete in your original code)
-
             if (vehicleWithMotor && string.IsNullOrWhiteSpace(licensePlate))
             {
                 showTemporaryMessage(labelMessageError, messageLicensePlateEmpty, 3000);
@@ -280,42 +277,72 @@ namespace Parking
                 return;
             }
 
-            if (vehicleWithMotor && _vehiclesService.validateLicensePlateExist(licensePlate) && _vehiclesService.isVehicleStateActive(licensePlate))
+            // === Main Flow ===
+            Vehicles existingVehicle = null;
+            if (vehicleWithMotor && _vehiclesService.validateLicensePlateExist(licensePlate))
             {
-                showTemporaryMessage(labelMessageError, $"Ya existe un vehículo con placa: {licensePlate}", 3000);
-                return;
+                existingVehicle = _vehiclesService.getByLicensePlate(licensePlate);
+            }
+            else if (!vehicleWithMotor && _vehiclesService.validateOwnerExist(ownerId))
+            {
+                existingVehicle = _vehiclesService.getByOwnerId(ownerId);
             }
 
-            Vehicles _vehicle = new Vehicles
+            if (existingVehicle == null)
             {
-                Type_id = _vehiclesTypeService.GetId(currentTypeVehicle),
-                License_plate = valueToSaveUsingVehicleWithMotor(_vehiclesService.hasTypeVehicleLicensePlate(currentTypeVehicle)),
-                Owner_id = valueToSaveUsingVehicleWithoutMotor(_vehiclesService.hasTypeVehicleLicensePlate(currentTypeVehicle)),
-                State = VehicleStateCode.activo.ToString()
-            };
+                // Crear vehículo nuevo
+                Vehicles _vehicle = new Vehicles
+                {
+                    Type_id = _vehiclesTypeService.GetId(currentTypeVehicle),
+                    License_plate = licensePlate,
+                    Owner_id = ownerId,
+                    State = VehicleStateCode.activo.ToString()
+                };
 
-            Checkins _checkin = new Checkins
+                Checkins _checkin = new Checkins
+                {
+                    EntryTime = DateTime.Now,
+                    State = CheckinsStateCode.abierto.ToString(),
+                };
+
+                Tickets _ticket = new Tickets
+                {
+                    Parking_id = 1,
+                    Codebar = BarcodeHelper.GenerateUniqueCodebar(),
+                    Release_date = DateTime.Now
+                };
+
+                _parkingService.RegisterVehicleCheckin(_vehicle, _checkin, _ticket);
+            }
+            else
             {
-                Vehicle_id = -1, // placeholder
-                EntryTime = DateTime.Now,
-                State = CheckinsStateCode.abierto.ToString(),
-            };
+                // Validar que no esté inactivo
+                if (existingVehicle.State == VehicleStateCode.activo.ToString())
+                {
+                    showTemporaryMessage(labelMessageError, "Este vehículo ya se encuentra registrado", 3000);
+                    return;
+                }
 
-            Tickets _ticket = new Tickets
-            {
-                Checkin_id = -0, // placeholder
-                Parking_id = 1,
-                Codebar = BarcodeHelper.GenerateUniqueCodebar(),
-                Release_date = DateTime.Now
-            };
+                // Crear solo checkin + ticket
+                Checkins _checkin = new Checkins
+                {
+                    EntryTime = DateTime.Now,
+                    State = CheckinsStateCode.abierto.ToString(),
+                };
 
+                Tickets _ticket = new Tickets
+                {
+                    Parking_id = 1,
+                    Codebar = BarcodeHelper.GenerateUniqueCodebar(),
+                    Release_date = DateTime.Now
+                };
+
+                _parkingService.RegisterCheckin(existingVehicle.Id, _checkin, _ticket);
+            }
+
+            // === Mensaje y acciones finales ===
             showTemporarySuccesMessage(labelMessageError, messageVehicleSuccesfullyRegistered, 3000);
-
-            _parkingService.RegisterVehicleCheckin(_vehicle, _checkin, _ticket);
-
             printTicket();
-
-            // After saving, return focus to scanner for next vehicle
             focusScanner();
         }
 
@@ -357,7 +384,7 @@ namespace Parking
 
             String licensePlate = _printData.VehicleInfo;
 
-            changeVehicleStateToInactive(licensePlate);
+            
             Bills bills = new Bills
             {
                 Checkin_id = _printData.CheckinId,
@@ -368,7 +395,7 @@ namespace Parking
             };
 
             changeCheckinStateToFacturado(_printData.CheckinId);
-
+            changeVehicleStateToInactive(licensePlate);
             _billService.createBill(bills);
         }
 
@@ -401,7 +428,7 @@ namespace Parking
             if (_printData != null)
             {
                 PrintHelper.printTicket(_printData);
-                showTemporarySuccesMessage(labelMessageError, "Imprimiento Factura", 3000);
+                showTemporarySuccesMessage(labelMessageError, "Imprimiento Ticket", 3000);
             }
             else
             {
@@ -420,7 +447,7 @@ namespace Parking
                 if (shouldPrint)
                 {
                     PrintHelper.printInvoice(_printData);
-                    showTemporarySuccesMessage(labelMessageError, "Imprimiendo ticket", 3000);
+                    showTemporarySuccesMessage(labelMessageError, "Imprimiendo Factura", 3000);
                 }
                 else
                 {

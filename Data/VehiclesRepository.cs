@@ -81,9 +81,23 @@ namespace Parking.Data
 
                 return count > 0;
             }
+        }
 
+        public bool existsByOwnerId(String ownerId)
+        {
+            using (var con = DbConnectionFactory.GetConnection())
+            {
+                con.Open();
+                var cmd = con.CreateCommand();
 
+                cmd.CommandText = @"SELECT COUNT(1) FROM vehicles WHERE Owner_id = @owner_id";
 
+                cmd.Parameters.AddWithValue("@owner_id", ownerId);
+
+                long count = (long)cmd.ExecuteScalar();
+
+                return count > 0;
+            }
         }
 
         public VehicleStateCode GetStateByLicensePlate(String plate)
@@ -111,6 +125,85 @@ namespace Parking.Data
             }
 
             return VehicleStateCode.inactivo;
+        }
+
+        public int GetIdByLicensePlate(String plate)
+        {
+            var list = new List<Vehicles>();
+
+            using (var con = DbConnectionFactory.GetConnection())
+            {
+                con.Open();
+                var cmd = con.CreateCommand();
+                cmd.CommandText = "SELECT Id From Vehicles WHERE License_plate = @plate";
+                cmd.Parameters.AddWithValue("@plate", plate);
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                       return reader.GetInt32(0);
+                    }
+
+                }
+                return -1;
+            }
+        }
+
+        public Vehicles GetByLicensePlate(String licensePlate)
+        {
+            using (var con = DbConnectionFactory.GetConnection())
+            {
+                con.Open();
+                var cmd = con.CreateCommand();
+                cmd.CommandText = "SELECT Id, License_plate, Owner_id, Type_id, State From Vehicles WHERE License_plate = @plate";
+                cmd.Parameters.AddWithValue("@plate", licensePlate);
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        return new Vehicles
+                        {
+                            Id = reader.GetInt32(0),
+                            License_plate = reader.IsDBNull(1) ? null : reader.GetString(1),
+                            Owner_id = reader.IsDBNull(2) ? null : reader.GetString(2),
+                            Type_id = reader.GetInt32(3),
+                            State = reader.GetString(4)
+                        };
+                    }
+
+                }
+                return null;
+            }
+        }
+
+        public Vehicles GetByOwnerId(String ownerId)
+        {
+            using (var con = DbConnectionFactory.GetConnection())
+            {
+                con.Open();
+                var cmd = con.CreateCommand();
+                cmd.CommandText = "SELECT Id, License_plate, Owner_id, Type_id, State From Vehicles WHERE Owner_id = @owner_id";
+                cmd.Parameters.AddWithValue("@owner_id", ownerId);
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        return new Vehicles
+                        {
+                            Id = reader.GetInt32(0),
+                            License_plate = reader.IsDBNull(1) ? null : reader.GetString(1),
+                            Owner_id = reader.IsDBNull(2) ? null : reader.GetString(2),
+                            Type_id = reader.GetInt32(3),
+                            State = reader.GetString(4)
+                        };
+                    }
+
+                }
+                return null;
+            }
         }
 
         public VehicleStateCode GetStateByOwnerId(String _ownerId)
