@@ -52,7 +52,6 @@ namespace Parking.Data
                     vt.Fee AS VehicleFee,
                     t.Id AS TicketId,
                     t.Codebar,
-                    t.Release_date AS TicketReleaseDate,
                     p.Id AS ParkingId,
                     p.Name_parking,
                     p.Address,
