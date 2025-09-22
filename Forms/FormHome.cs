@@ -568,7 +568,5 @@ namespace Parking
 
             return entryTime.AddMinutes(totalMinutes);
         }
-
-        
     }
 }
