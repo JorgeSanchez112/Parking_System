@@ -1,7 +1,0 @@
-C:\Users\halo2\Desktop\Parking\obj\x86\Release\Parking.csproj.AssemblyReference.cache
-C:\Users\halo2\Desktop\Parking\obj\x86\Release\Parking.FormHome.resources
-C:\Users\halo2\Desktop\Parking\obj\x86\Release\Parking.Forms.FormSettings.resources
-C:\Users\halo2\Desktop\Parking\obj\x86\Release\Parking.Forms.FormVehiculesHistory.resources
-C:\Users\halo2\Desktop\Parking\obj\x86\Release\Parking.Properties.Resources.resources
-C:\Users\halo2\Desktop\Parking\obj\x86\Release\Parking.csproj.GenerateResource.cache
-C:\Users\halo2\Desktop\Parking\obj\x86\Release\Parking.csproj.CoreCompileInputs.cache
