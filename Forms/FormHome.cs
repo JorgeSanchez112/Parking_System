@@ -29,8 +29,15 @@ namespace Parking
         public FormHome()
         {
             InitializeComponent();
+            this.DoubleBuffered = true;
             this.Shown += FormHome_shown;
             this.KeyPreview = true;
+
+            var img = Properties.Resources.imagen_estadio;
+
+            this.BackgroundImage = new Bitmap(img, this.ClientSize);
+            this.BackgroundImageLayout = ImageLayout.None;
+
 
             hideTextBoxScanner();
             textBoxScanner.GotFocus += textBoxScanner_GotFocus;
@@ -176,34 +183,46 @@ namespace Parking
         // ==================== VEHICLE SELECTION ====================
         private void pictureBox1_Click(object sender, EventArgs e)
         {
-            setValueToLabel6("Ingresar placa");
+            setValueToLabel6("INGRESAR CARRO");
             showLabel6();
+            ValueBoldToLabel6();
             clearTextBox1();
             setTexBox1MaxLength(6);
             showTextBox1();
             showButtonSaveVehicle();
+            carClickedStyle();
+            motorBikeDefaultStyle();
+            bikeDefaultStyle();
             currentTypeVehicle = VehicleTypeCode.Car;
         }
 
         private void pictureBox2_Click(object sender, EventArgs e)
         {
-            setValueToLabel6("Ingresar placa");
+            setValueToLabel6("INGRESAR MOTO");
             showLabel6();
+            ValueBoldToLabel6();
             clearTextBox1();
             setTexBox1MaxLength(6);
             showTextBox1();
             showButtonSaveVehicle();
+            motorBikeClickedStyle();
+            carDefaultStyle();
+            bikeDefaultStyle();
             currentTypeVehicle = VehicleTypeCode.Motorbike;
         }
 
         private void pictureBox3_Click(object sender, EventArgs e)
         {
-            setValueToLabel6("Ingresar numero de identificacion");
+            setValueToLabel6("INGRESAR NUMERO DE IDENTIFICACION");
             showLabel6();
+            ValueBoldToLabel6();
             clearTextBox1();
             setTexBox1MaxLength(10);
             showTextBox1();
             showButtonSaveVehicle();
+            bikeClickedStyle();
+            carDefaultStyle();
+            motorBikeDefaultStyle();
             currentTypeVehicle = VehicleTypeCode.Bike;
         }
 
@@ -219,6 +238,7 @@ namespace Parking
                 int selStart = textBox1.SelectionStart;
                 textBox1.Text = textBox1.Text.ToUpper();
                 textBox1.SelectionStart = selStart;
+
             }
 
             // Enable/disable Save button depending on type
@@ -405,7 +425,50 @@ namespace Parking
         private void setTexBox1MaxLength(int limit) => textBox1.MaxLength = limit;
         private void clearTextBox1() => textBox1.Clear();
         private void setValueToLabel6(String txt) => label6.Text = txt;
+        private void ValueBoldToLabel6() => label6.Font = new Font(label6.Font, FontStyle.Bold);
         private void showLabel6() => label6.Visible = true;
+
+        private void carClickedStyle()
+        {
+            flowLayoutPanel2.BorderStyle = BorderStyle.Fixed3D;
+            pictureBox1.BorderStyle = BorderStyle.Fixed3D;
+            pictureBox1.BackColor = Color.Navy;
+        }
+
+        private void motorBikeClickedStyle()
+        {
+            flowLayoutPanel4.BorderStyle = BorderStyle.Fixed3D;
+            pictureBox2.BorderStyle = BorderStyle.Fixed3D;
+            pictureBox2.BackColor = Color.Navy;
+        }
+
+        private void bikeClickedStyle()
+        {
+            flowLayoutPanel1.BorderStyle = BorderStyle.Fixed3D;
+            pictureBox3.BorderStyle = BorderStyle.Fixed3D;
+            pictureBox3.BackColor = Color.Bisque;
+        }
+
+        private void carDefaultStyle()
+        {
+            flowLayoutPanel2.BorderStyle = BorderStyle.None;
+            pictureBox1.BorderStyle = BorderStyle.None;
+            pictureBox1.BackColor = Color.Transparent;
+        }
+
+        private void motorBikeDefaultStyle()
+        {
+            flowLayoutPanel4.BorderStyle = BorderStyle.None;
+            pictureBox2.BorderStyle = BorderStyle.None;
+            pictureBox2.BackColor = Color.Transparent;
+        }
+
+        private void bikeDefaultStyle()
+        {
+            flowLayoutPanel1.BorderStyle = BorderStyle.None;
+            pictureBox3.BorderStyle = BorderStyle.None;
+            pictureBox3.BackColor = Color.Transparent;
+        }
 
         private void FormHome_Load(object sender, EventArgs e)
         {

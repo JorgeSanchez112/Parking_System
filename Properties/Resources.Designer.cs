@@ -123,6 +123,26 @@ namespace Parking.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap imagen_estadio {
+            get {
+                object obj = ResourceManager.GetObject("imagen_estadio", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap imagen_fondo {
+            get {
+                object obj = ResourceManager.GetObject("imagen_fondo", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap Moto {
             get {
                 object obj = ResourceManager.GetObject("Moto", resourceCulture);
