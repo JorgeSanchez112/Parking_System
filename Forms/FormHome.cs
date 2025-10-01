@@ -5,10 +5,12 @@ using Parking.Utils;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Runtime.InteropServices;
 
 namespace Parking
 {
@@ -16,6 +18,11 @@ namespace Parking
     {
         [DllImport("user32.dll")]
         static extern bool HideCaret(IntPtr hWnd);
+
+        private Bitmap _bgCache = null;
+        private Timer _resizeTimer = null;
+        private const int RESIZE_DELAY_MS = 200;
+
 
         private VehicleTypeCode currentTypeVehicle;
 
@@ -33,11 +40,21 @@ namespace Parking
             this.Shown += FormHome_shown;
             this.KeyPreview = true;
 
-            var img = Properties.Resources.imagen_estadio;
+            // Enable double buffering
+            this.DoubleBuffered = true;
+            SetDoubleBuffered(tableLayoutPanel1, true);
 
-            this.BackgroundImage = new Bitmap(img, this.ClientSize);
-            this.BackgroundImageLayout = ImageLayout.None;
+            // Events
+            tableLayoutPanel1.Paint += TableLayoutPanel1_Paint;
+            tableLayoutPanel1.Resize += TableLayoutPanel1_Resize;
 
+            // Create the timer (only once)
+            _resizeTimer = new Timer();
+            _resizeTimer.Interval = RESIZE_DELAY_MS;
+            _resizeTimer.Tick += ResizeTimer_Tick;
+
+            // Create the initial bitmap (if the control already has a size)
+            UpdateBackgroundBitmap();
 
             hideTextBoxScanner();
             textBoxScanner.GotFocus += textBoxScanner_GotFocus;
@@ -160,6 +177,90 @@ namespace Parking
         private void labelMessageError_Click(object sender, EventArgs e) { }
         private void labelElapsedValue_Click(object sender, EventArgs e) { }
         private void textBoxCodeBarScanner_TextChanged(object sender, EventArgs e) { }
+
+
+        private void TableLayoutPanel1_Paint(object sender, PaintEventArgs e)
+        {
+            // Draw the cached image (if it exists)
+            if (_bgCache != null)
+            {
+                // If it’s already exactly the right size, draw without scaling for maximum speed
+                e.Graphics.CompositingQuality = CompositingQuality.HighSpeed;
+                e.Graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                e.Graphics.DrawImageUnscaled(_bgCache, 0, 0);
+            }
+            else
+            {
+                // Fallback: draw resource directly (not recommended for long-term performance)
+                var img = Properties.Resources.imagen_estadio;
+                if (img != null)
+                    e.Graphics.DrawImage(img, new Rectangle(0, 0, tableLayoutPanel1.Width, tableLayoutPanel1.Height));
+            }
+        }
+
+        // Don’t recalculate immediately on each resize: use a timer for "debounce"
+        private void TableLayoutPanel1_Resize(object sender, EventArgs e)
+        {
+            // Restart the timer: if the user keeps dragging, we don’t recalculate yet
+            _resizeTimer.Stop();
+            _resizeTimer.Start();
+        }
+
+        private void ResizeTimer_Tick(object sender, EventArgs e)
+        {
+            _resizeTimer.Stop();
+            UpdateBackgroundBitmap();
+            tableLayoutPanel1.Invalidate(); // force quick repaint using the cached image
+        }
+
+        private void UpdateBackgroundBitmap()
+        {
+            var img = Properties.Resources.imagen_estadio;
+            if (img == null) return;
+
+            var w = tableLayoutPanel1.ClientSize.Width;
+            var h = tableLayoutPanel1.ClientSize.Height;
+
+            if (w <= 0 || h <= 0) return;
+
+            // If it already exists and has the right size, do nothing
+            if (_bgCache != null && _bgCache.Width == w && _bgCache.Height == h) return;
+
+            // Release previous cache
+            _bgCache?.Dispose();
+
+            // Create new scaled version (only once)
+            // Use reasonable scaling quality: HighQualityBicubic is good but a bit slower.
+            var bmp = new Bitmap(w, h);
+            using (var g = Graphics.FromImage(bmp))
+            {
+                g.CompositingQuality = CompositingQuality.HighSpeed;
+                g.InterpolationMode = InterpolationMode.Low;
+                g.SmoothingMode = SmoothingMode.None;
+
+                // Draw the scaled image across the whole panel
+                g.DrawImage(img, new Rectangle(0, 0, w, h));
+            }
+
+            _bgCache = bmp;
+        }
+
+        // Utility to enable double buffering in controls that don’t expose the property
+        private void SetDoubleBuffered(Control c, bool enabled)
+        {
+            // Reflection because the property may be non-public
+            PropertyInfo prop = typeof(Control).GetProperty("DoubleBuffered", BindingFlags.Instance | BindingFlags.NonPublic);
+            if (prop != null) prop.SetValue(c, enabled, null);
+        }
+
+        // Release resources when closing the form
+        protected override void OnFormClosed(FormClosedEventArgs e)
+        {
+            base.OnFormClosed(e);
+            _bgCache?.Dispose();
+            _resizeTimer?.Dispose();
+        }
+
 
         private void ajsutesToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -657,6 +758,92 @@ namespace Parking
             int totalMinutes = (hours * 60) + minutes;
 
             return entryTime.AddMinutes(totalMinutes);
+        }
+
+        private void textBox2_TextChanged_1(object sender, EventArgs e)
+        {
+            int selStart = textBox2.SelectionStart;
+            textBox2.Text = textBox2.Text.ToUpper();
+            textBox2.SelectionStart = selStart;
+        }
+        
+
+        private void buttonValidateOwner_Click(object sender, EventArgs e)
+        {
+            TicketsService _ticketService = new TicketsService();
+            VehiclesTypesService _vehicleType = new VehiclesTypesService();
+            VehiclesService _vehiclesService = new VehiclesService();
+            ParkingService _parkingService = new ParkingService();
+
+            string input = textBox2.Text.Trim();
+            int ticketId = -1;
+
+            if (string.IsNullOrEmpty(input))
+            {
+                showTemporaryMessage(labelMessageError, "Por favor, ingresar una identificacion de vehiculo valida", 3000);
+                return;
+            }
+
+            if (input.All(char.IsDigit))
+            {
+                ticketId = _ticketService.getIdByOwnerId(input);
+            }
+            else
+            {
+                ticketId = _ticketService.getIdByLicensePlate(input);
+            }
+
+            _currentTicketId = ticketId;  // save last input number 
+
+            var _printData = _ticketService.getPrintData(ticketId);
+
+            if (_printData != null)
+            {
+                bool vehicleStateActive = _vehiclesService.isVehicleStateActive(_printData.LicensePlate);
+
+                if (_printData.CheckinState == "facturado")
+                {
+                    showTemporaryMessage(labelMessageError, "Este ticket ya fue facturado", 3000);
+                    hideElapsedTime();
+                    hideCost();
+                    hideButtonGenerateInvoice();
+                    hideButtonInvoicePaid();
+                    return;
+                }
+
+                if (vehicleStateActive == false && _printData.VehicleType != VehicleTypeCode.Bike.ToString())
+                {
+                    showTemporaryMessage(labelMessageError, "El vehículo no esta registrado", 3000);
+                    hideElapsedTime();
+                    hideCost();
+                    hideButtonGenerateInvoice();
+                    hideButtonInvoicePaid();
+                    return;
+                }
+
+                showElapsedTime(_printData.MinutesElapsed);
+                showCost(_printData.TotalPayGenerated.ToString());
+                showButtonGenerateInvoice();
+                showButtonInvoicePaid();
+            }
+            else
+            {
+                showTemporaryMessage(labelMessageError, "Vehiculo no encontrado", 3000);
+                hideElapsedTime();
+                hideCost();
+                hideButtonGenerateInvoice();
+                hideButtonInvoicePaid();
+            }
+        }
+
+        private void buttonFocuScanner_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBoxScanner_TextChanged_1(object sender, EventArgs e)
+        {
+
         }
     }
 }

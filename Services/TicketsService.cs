@@ -27,6 +27,16 @@ namespace Parking
             return _ticketsRepository.getIdByCodeBar(codebar);
         }
 
+        public int getIdByLicensePlate(String licensePlate)
+        {
+            return _ticketsRepository.GetActiveTicketIdByLicensePlate(licensePlate);
+        }
+
+        public int getIdByOwnerId(String ownerId)
+        {
+            return _ticketsRepository.GetActiveTicketIdByOwnerId(ownerId);
+        }
+
 
         public PrintData getPrintData(int id)
         {

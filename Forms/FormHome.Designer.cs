@@ -55,6 +55,9 @@
             this.labelMessageError = new System.Windows.Forms.Label();
             this.textBoxScanner = new System.Windows.Forms.TextBox();
             this.buttonFocuScanner = new System.Windows.Forms.Button();
+            this.LabelIdentificacionVehiculo = new System.Windows.Forms.Label();
+            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.buttonValidateOwner = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
@@ -96,8 +99,7 @@
             // 
             // tableLayoutPanel1
             // 
-            this.tableLayoutPanel1.BackColor = System.Drawing.Color.Transparent;
-            this.tableLayoutPanel1.BackgroundImage = global::Parking.Properties.Resources.imagen_estadio;
+            this.tableLayoutPanel1.BackColor = System.Drawing.Color.RoyalBlue;
             this.tableLayoutPanel1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
             this.tableLayoutPanel1.ColumnCount = 20;
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 5F));
@@ -136,6 +138,9 @@
             this.tableLayoutPanel1.Controls.Add(this.labelMessageError, 7, 2);
             this.tableLayoutPanel1.Controls.Add(this.textBoxScanner, 19, 1);
             this.tableLayoutPanel1.Controls.Add(this.buttonFocuScanner, 18, 12);
+            this.tableLayoutPanel1.Controls.Add(this.LabelIdentificacionVehiculo, 0, 12);
+            this.tableLayoutPanel1.Controls.Add(this.textBox2, 4, 12);
+            this.tableLayoutPanel1.Controls.Add(this.buttonValidateOwner, 4, 13);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 24);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -209,13 +214,14 @@
             // 
             // flowLayoutPanel4
             // 
+            this.flowLayoutPanel4.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.flowLayoutPanel4.AutoSize = true;
             this.flowLayoutPanel4.BackColor = System.Drawing.Color.Transparent;
             this.tableLayoutPanel1.SetColumnSpan(this.flowLayoutPanel4, 4);
             this.flowLayoutPanel4.Controls.Add(this.label2);
             this.flowLayoutPanel4.Controls.Add(this.pictureBox2);
             this.flowLayoutPanel4.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.flowLayoutPanel4.Location = new System.Drawing.Point(528, 144);
+            this.flowLayoutPanel4.Location = new System.Drawing.Point(535, 152);
             this.flowLayoutPanel4.Margin = new System.Windows.Forms.Padding(0);
             this.flowLayoutPanel4.Name = "flowLayoutPanel4";
             this.tableLayoutPanel1.SetRowSpan(this.flowLayoutPanel4, 7);
@@ -315,7 +321,7 @@
             this.textBox1.BackColor = System.Drawing.Color.WhiteSmoke;
             this.tableLayoutPanel1.SetColumnSpan(this.textBox1, 2);
             this.textBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
-            this.textBox1.Location = new System.Drawing.Point(597, 435);
+            this.textBox1.Location = new System.Drawing.Point(663, 435);
             this.textBox1.MaxLength = 0;
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(126, 24);
@@ -325,13 +331,14 @@
             // 
             // label6
             // 
+            this.label6.AutoEllipsis = true;
             this.label6.AutoSize = true;
             this.label6.BackColor = System.Drawing.Color.Transparent;
             this.tableLayoutPanel1.SetColumnSpan(this.label6, 4);
             this.label6.Dock = System.Windows.Forms.DockStyle.Right;
             this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
             this.label6.ForeColor = System.Drawing.Color.Wheat;
-            this.label6.Location = new System.Drawing.Point(409, 432);
+            this.label6.Location = new System.Drawing.Point(475, 432);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(182, 36);
             this.label6.TabIndex = 12;
@@ -438,7 +445,7 @@
             this.buttonSaveVehicle.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
             this.tableLayoutPanel1.SetColumnSpan(this.buttonSaveVehicle, 4);
             this.buttonSaveVehicle.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
-            this.buttonSaveVehicle.Location = new System.Drawing.Point(729, 435);
+            this.buttonSaveVehicle.Location = new System.Drawing.Point(795, 435);
             this.buttonSaveVehicle.Name = "buttonSaveVehicle";
             this.buttonSaveVehicle.Size = new System.Drawing.Size(239, 28);
             this.buttonSaveVehicle.TabIndex = 19;
@@ -450,7 +457,7 @@
             // labelMessageError
             // 
             this.labelMessageError.AutoSize = true;
-            this.labelMessageError.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.labelMessageError.BackColor = System.Drawing.Color.Transparent;
             this.tableLayoutPanel1.SetColumnSpan(this.labelMessageError, 6);
             this.labelMessageError.Dock = System.Windows.Forms.DockStyle.Fill;
             this.labelMessageError.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
@@ -470,6 +477,7 @@
             this.textBoxScanner.Name = "textBoxScanner";
             this.textBoxScanner.Size = new System.Drawing.Size(65, 20);
             this.textBoxScanner.TabIndex = 21;
+            this.textBoxScanner.TextChanged += new System.EventHandler(this.textBoxScanner_TextChanged_1);
             // 
             // buttonFocuScanner
             // 
@@ -484,6 +492,49 @@
             this.buttonFocuScanner.TabIndex = 22;
             this.buttonFocuScanner.Text = "Escanear";
             this.buttonFocuScanner.UseVisualStyleBackColor = false;
+            this.buttonFocuScanner.Click += new System.EventHandler(this.buttonFocuScanner_Click);
+            // 
+            // LabelIdentificacionVehiculo
+            // 
+            this.LabelIdentificacionVehiculo.AutoEllipsis = true;
+            this.LabelIdentificacionVehiculo.AutoSize = true;
+            this.LabelIdentificacionVehiculo.BackColor = System.Drawing.Color.Transparent;
+            this.tableLayoutPanel1.SetColumnSpan(this.LabelIdentificacionVehiculo, 4);
+            this.LabelIdentificacionVehiculo.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
+            this.LabelIdentificacionVehiculo.ForeColor = System.Drawing.Color.Wheat;
+            this.LabelIdentificacionVehiculo.ImageAlign = System.Drawing.ContentAlignment.BottomLeft;
+            this.LabelIdentificacionVehiculo.Location = new System.Drawing.Point(3, 432);
+            this.LabelIdentificacionVehiculo.Name = "LabelIdentificacionVehiculo";
+            this.LabelIdentificacionVehiculo.Size = new System.Drawing.Size(238, 36);
+            this.LabelIdentificacionVehiculo.TabIndex = 25;
+            this.LabelIdentificacionVehiculo.Text = "INGRESAR IDENTIFICACION DEL VEHICULO";
+            this.LabelIdentificacionVehiculo.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // textBox2
+            // 
+            this.textBox2.BackColor = System.Drawing.Color.WhiteSmoke;
+            this.tableLayoutPanel1.SetColumnSpan(this.textBox2, 2);
+            this.textBox2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.textBox2.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
+            this.textBox2.Location = new System.Drawing.Point(267, 435);
+            this.textBox2.Name = "textBox2";
+            this.textBox2.Size = new System.Drawing.Size(126, 24);
+            this.textBox2.TabIndex = 24;
+            this.textBox2.TextChanged += new System.EventHandler(this.textBox2_TextChanged_1);
+            // 
+            // buttonValidateOwner
+            // 
+            this.buttonValidateOwner.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            this.tableLayoutPanel1.SetColumnSpan(this.buttonValidateOwner, 2);
+            this.buttonValidateOwner.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.buttonValidateOwner.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
+            this.buttonValidateOwner.Location = new System.Drawing.Point(267, 471);
+            this.buttonValidateOwner.Name = "buttonValidateOwner";
+            this.buttonValidateOwner.Size = new System.Drawing.Size(126, 30);
+            this.buttonValidateOwner.TabIndex = 23;
+            this.buttonValidateOwner.Text = "Validar";
+            this.buttonValidateOwner.UseVisualStyleBackColor = false;
+            this.buttonValidateOwner.Click += new System.EventHandler(this.buttonValidateOwner_Click);
             // 
             // FormHome
             // 
@@ -542,6 +593,9 @@
         private System.Windows.Forms.TextBox textBoxScanner;
         private System.Windows.Forms.Button buttonFocuScanner;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel4;
+        private System.Windows.Forms.Button buttonValidateOwner;
+        private System.Windows.Forms.TextBox textBox2;
+        private System.Windows.Forms.Label LabelIdentificacionVehiculo;
     }
 }
 

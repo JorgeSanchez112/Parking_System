@@ -122,6 +122,44 @@ namespace Parking.Data
             return ticketId;
         }
 
+        public int GetActiveTicketIdByLicensePlate(string licensePlate)
+        {
+            using (var connection = DbConnectionFactory.GetConnection())
+            {
+                connection.Open();
+                var query = @" SELECT t.Id FROM checkins c INNER JOIN vehicles v ON v.Id = c.Vehicle_id INNER JOIN tickets t ON t.Checkin_id = c.Id
+                    WHERE v.License_plate = @LicensePlate
+                    AND c.State = 'abierto'
+                    LIMIT 1";   // If there are more than one, return just one
+
+                using (var cmd = new SqliteCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@LicensePlate", licensePlate);
+                    var result = cmd.ExecuteScalar();
+                    return Convert.ToInt32(result);
+                }
+            }
+        }
+
+        public int GetActiveTicketIdByOwnerId(string ownerId)
+        {
+            using (var connection = DbConnectionFactory.GetConnection())
+            {
+                connection.Open();
+                var query = @" SELECT t.Id FROM checkins c INNER JOIN vehicles v ON v.Id = c.Vehicle_id INNER JOIN tickets t ON t.Checkin_id = c.Id
+                    WHERE v.Owner_id = @OwnerId
+                    AND c.State = 'abierto'
+                    LIMIT 1"; // If there are more than one, return just one
+
+                using (var cmd = new SqliteCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@OwnerId", ownerId);
+                    var result = cmd.ExecuteScalar();
+                    return Convert.ToInt32(result);
+                }
+            }
+        }
+
         public PrintData getPrintDataForTicket(int ticketId)
         {
             using (var con = DbConnectionFactory.GetConnection())
