@@ -86,6 +86,24 @@ namespace Parking.Services
 
         }
 
+        public void setVehicleStateWhatever(Vehicles vehicles)
+        {
+
+            string currentState = _vehiclesRepository.GetStateByLicensePlate(vehicles.License_plate).ToString();
+
+            if (_vehiclesRepository.GetStateByLicensePlate(vehicles.License_plate).Equals(VehicleStateCode.inactivo))
+            {
+                _vehiclesRepository.UpdateStateByLicensePlate(vehicles);
+                Console.WriteLine($"Estado actualizado a {vehicles.State} para placa {vehicles.License_plate}");
+            }
+            else
+            {
+                Console.WriteLine($"Estado no actualizado. Estado actual en BD: {currentState}");
+            }
+
+
+        }
+
         public bool isTextBoxLengthValid(TextBox textBox, int minLength)
         {
             String value = textBox.Text?.Trim();

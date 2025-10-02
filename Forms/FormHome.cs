@@ -98,7 +98,7 @@ namespace Parking
 
                         if (_printData.CheckinState == "facturado")
                         {
-                            showTemporaryMessage(labelMessageError, "Este ticket ya fue facturado", 3000);
+                            showTemporaryMessage(labelMessageError, "ESTE TICKET YA FUE FACTURADO", 3000);
                             hideElapsedTime();
                             hideCost();
                             hideButtonGenerateInvoice();
@@ -108,7 +108,7 @@ namespace Parking
 
                         if (vehicleStateActive == false && _printData.VehicleType != VehicleTypeCode.Bike.ToString())
                         {
-                            showTemporaryMessage(labelMessageError, "El vehículo no esta registrado", 3000);
+                            showTemporaryMessage(labelMessageError, "EL VEHICULO NO ESTA REGISTRADO", 3000);
                             hideElapsedTime();
                             hideCost();
                             hideButtonGenerateInvoice();
@@ -123,7 +123,7 @@ namespace Parking
                     }
                     else
                     {
-                        showTemporaryMessage(labelMessageError, "Código no encontrado", 3000);
+                        showTemporaryMessage(labelMessageError, "CODIGO NO ENCONTRADO", 3000);
                         hideElapsedTime();
                         hideCost();
                         hideButtonGenerateInvoice();
@@ -394,9 +394,10 @@ namespace Parking
 
             if (vehicleWithMotor && !_vehiclesService.isTextBoxLengthValid(textBox1, 6))
             {
-                showTemporaryMessage(labelMessageError, "La placa debe tener al menos 6 caracteres", 3000);
+                showTemporaryMessage(labelMessageError, "LA PLACA DEBE TENER AL MENOS 6 CARACTERES", 3000);
                 return;
             }
+
 
             // === Main Flow ===
             Vehicles existingVehicle = null;
@@ -440,7 +441,14 @@ namespace Parking
                 // Validar que no esté inactivo
                 if (existingVehicle.State == VehicleStateCode.activo.ToString())
                 {
-                    showTemporaryMessage(labelMessageError, "Este vehículo ya se encuentra registrado", 3000);
+                    showTemporaryMessage(labelMessageError, "ESTE VEHICULO YA SE ENCUENTRA REGISTRADO", 3000);
+                    return;
+                }
+
+                // Validar que la placa sea unica
+                if (existingVehicle.Type_id != _vehiclesTypeService.GetId(currentTypeVehicle))
+                {
+                    showTemporaryMessage(labelMessageError, "ESTE VEHICULO ESTA ALMACENADO EN EL SISTEMA CON UN TIPO DIFERENTE AL SELECCIONADO", 3000);
                     return;
                 }
 
@@ -458,7 +466,12 @@ namespace Parking
                     Release_date = DateTime.Now
                 };
 
+                Console.WriteLine(existingVehicle.License_plate);
+                
+
                 _parkingService.RegisterCheckin(existingVehicle.Id, _checkin, _ticket);
+
+                changeVehicleStateToActive(existingVehicle.License_plate);
             }
 
             // === Mensaje y acciones finales ===
@@ -592,11 +605,11 @@ namespace Parking
             if (_printData != null)
             {
                 PrintHelper.printTicket(_printData);
-                showTemporarySuccesMessage(labelMessageError, "Imprimiento Ticket", 3000);
+                showTemporarySuccesMessage(labelMessageError, "IMPRIMIENDO TICKET", 3000);
             }
             else
             {
-                showTemporaryMessage(labelMessageError, "Algo fue mal al generar el ticket", 300);
+                showTemporaryMessage(labelMessageError, "ALGO FUE MAL AL GENERAR EL TICKET", 300);
             }
         }
 
@@ -611,16 +624,16 @@ namespace Parking
                 if (shouldPrint)
                 {
                     PrintHelper.printInvoice(_printData);
-                    showTemporarySuccesMessage(labelMessageError, "Imprimiendo Factura", 3000);
+                    showTemporarySuccesMessage(labelMessageError, "IMPRIMIENDO FACTURA", 3000);
                 }
                 else
                 {
-                    showTemporarySuccesMessage(labelMessageError, "Facturado", 3000);
+                    showTemporarySuccesMessage(labelMessageError, "FACTURADO", 3000);
                 }
             }
             else
             {
-                showTemporaryMessage(labelMessageError, "Algo fue mal al generar el ticket", 300);
+                showTemporaryMessage(labelMessageError, "ALGO FUE MAL AL GENERAR LA FACTURA", 300);
             }
         }
 
@@ -643,6 +656,7 @@ namespace Parking
             label.Text = message;
             label.Visible = true;
             label.ForeColor = Color.Red;
+            label.BackColor = Color.Black;
             await Task.Delay(millisencods);
             label.Visible = false;
         }
@@ -652,6 +666,7 @@ namespace Parking
             label.Text = message;
             label.Visible = true;
             label.ForeColor = Color.Blue;
+            label.BackColor = Color.White;
             await Task.Delay(millisencods);
             label.Visible = false;
         }
@@ -734,6 +749,19 @@ namespace Parking
             _vehiclesService.setVehicleState(_vehicles);
         }
 
+        private void changeVehicleStateToActive(String licensePlate)
+        {
+            VehiclesService _vehiclesService = new VehiclesService();
+
+            Vehicles _vehicles = new Vehicles
+            {
+                License_plate = licensePlate,
+                State = VehicleStateCode.activo.ToString()
+            };
+
+            _vehiclesService.setVehicleStateWhatever(_vehicles);
+        }
+
         private void changeCheckinStateToFacturado(int checkinId)
         {
             CheckinsService _checkinService = new CheckinsService();
@@ -780,7 +808,7 @@ namespace Parking
 
             if (string.IsNullOrEmpty(input))
             {
-                showTemporaryMessage(labelMessageError, "Por favor, ingresar una identificacion de vehiculo valida", 3000);
+                showTemporaryMessage(labelMessageError, "POR FAVOR, INGRESAR UNA IDENTIFICACION DE VEHICULO VALIDA", 3000);
                 return;
             }
 
@@ -803,7 +831,7 @@ namespace Parking
 
                 if (_printData.CheckinState == "facturado")
                 {
-                    showTemporaryMessage(labelMessageError, "Este ticket ya fue facturado", 3000);
+                    showTemporaryMessage(labelMessageError, "ESTE TICKET YA FUE FACTURADO", 3000);
                     hideElapsedTime();
                     hideCost();
                     hideButtonGenerateInvoice();
@@ -813,7 +841,7 @@ namespace Parking
 
                 if (vehicleStateActive == false && _printData.VehicleType != VehicleTypeCode.Bike.ToString())
                 {
-                    showTemporaryMessage(labelMessageError, "El vehículo no esta registrado", 3000);
+                    showTemporaryMessage(labelMessageError, "EL VEHICULO NO ESTA REGISTRADO", 3000);
                     hideElapsedTime();
                     hideCost();
                     hideButtonGenerateInvoice();
@@ -828,7 +856,7 @@ namespace Parking
             }
             else
             {
-                showTemporaryMessage(labelMessageError, "Vehiculo no encontrado", 3000);
+                showTemporaryMessage(labelMessageError, "VEHICULO NO ENCONTRADO", 3000);
                 hideElapsedTime();
                 hideCost();
                 hideButtonGenerateInvoice();

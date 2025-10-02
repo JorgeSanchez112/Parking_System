@@ -1,6 +1,8 @@
 ﻿using Microsoft.Data.Sqlite;
+using Parking.Models;
 using System;
 using System.IO;
+using System.Numerics;
 
 namespace Parking.Data
 {
@@ -117,6 +119,40 @@ namespace Parking.Data
                 Console.WriteLine("No existe la base de datos para eliminar.");
             }
         }
+
+        //public static void showSomeData()
+        //{
+        //    Console.WriteLine("------------------------------------- BD -------------------------------------------");
+        //    using (var con = new SqliteConnection("Data Source=" + Db_FILE + ";"))
+        //    {
+        //        con.Open();
+
+        //        string query = @"
+        //        SELECT v.Id,
+        //               v.License_plate AS Placa,
+        //               v.Owner_id      AS DocumentoPropietario,
+        //               vt.Name         AS TipoVehiculo,
+        //               v.State         AS Estado
+        //        FROM vehicles v
+        //        JOIN vehicles_types vt ON v.Type_id = vt.Id;";
+
+        //        using (var cmd = new SqliteCommand(query, con))
+        //        using (var reader = cmd.ExecuteReader())
+        //        {
+        //            while (reader.Read())
+        //            {
+        //                int id = reader.GetInt32(0);
+
+        //                string placa = reader.IsDBNull(1) ? "(sin placa)" : reader.GetString(1);
+        //                string owner = reader.IsDBNull(2) ? "(sin propietario)" : reader.GetString(2);
+        //                string tipo = reader.IsDBNull(3) ? "(sin tipo)" : reader.GetString(3);
+        //                string estado = reader.IsDBNull(4) ? "(sin estado)" : reader.GetString(4);
+
+        //                Console.WriteLine($"Id: {id}, Placa: {placa}, Propietario: {owner}, Tipo: {tipo}, Estado: {estado}");
+        //            }
+        //        }
+        //    }
+        //}
 
 
     }
