@@ -318,12 +318,14 @@
             // 
             // textBox1
             // 
+            this.textBox1.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.textBox1.BackColor = System.Drawing.Color.WhiteSmoke;
             this.tableLayoutPanel1.SetColumnSpan(this.textBox1, 2);
             this.textBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
-            this.textBox1.Location = new System.Drawing.Point(663, 435);
+            this.textBox1.Location = new System.Drawing.Point(663, 456);
             this.textBox1.MaxLength = 0;
             this.textBox1.Name = "textBox1";
+            this.tableLayoutPanel1.SetRowSpan(this.textBox1, 2);
             this.textBox1.Size = new System.Drawing.Size(126, 24);
             this.textBox1.TabIndex = 11;
             this.textBox1.Visible = false;
@@ -340,7 +342,8 @@
             this.label6.ForeColor = System.Drawing.Color.Wheat;
             this.label6.Location = new System.Drawing.Point(475, 432);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(182, 36);
+            this.tableLayoutPanel1.SetRowSpan(this.label6, 2);
+            this.label6.Size = new System.Drawing.Size(182, 72);
             this.label6.TabIndex = 12;
             this.label6.Text = "INGRESAR NUMERO DE IDENTIFICACION";
             this.label6.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -441,12 +444,14 @@
             // 
             // buttonSaveVehicle
             // 
+            this.buttonSaveVehicle.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.buttonSaveVehicle.AutoSize = true;
             this.buttonSaveVehicle.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
             this.tableLayoutPanel1.SetColumnSpan(this.buttonSaveVehicle, 4);
             this.buttonSaveVehicle.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
-            this.buttonSaveVehicle.Location = new System.Drawing.Point(795, 435);
+            this.buttonSaveVehicle.Location = new System.Drawing.Point(804, 454);
             this.buttonSaveVehicle.Name = "buttonSaveVehicle";
+            this.tableLayoutPanel1.SetRowSpan(this.buttonSaveVehicle, 2);
             this.buttonSaveVehicle.Size = new System.Drawing.Size(239, 28);
             this.buttonSaveVehicle.TabIndex = 19;
             this.buttonSaveVehicle.Text = "GUARDAR Y GENERAR TICKET";
@@ -473,6 +478,7 @@
             // 
             // textBoxScanner
             // 
+            this.textBoxScanner.BackColor = System.Drawing.Color.DarkBlue;
             this.textBoxScanner.Location = new System.Drawing.Point(1257, 39);
             this.textBoxScanner.Name = "textBoxScanner";
             this.textBoxScanner.Size = new System.Drawing.Size(65, 20);
@@ -500,12 +506,13 @@
             this.LabelIdentificacionVehiculo.AutoSize = true;
             this.LabelIdentificacionVehiculo.BackColor = System.Drawing.Color.Transparent;
             this.tableLayoutPanel1.SetColumnSpan(this.LabelIdentificacionVehiculo, 4);
-            this.LabelIdentificacionVehiculo.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
+            this.LabelIdentificacionVehiculo.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.LabelIdentificacionVehiculo.ForeColor = System.Drawing.Color.Wheat;
             this.LabelIdentificacionVehiculo.ImageAlign = System.Drawing.ContentAlignment.BottomLeft;
             this.LabelIdentificacionVehiculo.Location = new System.Drawing.Point(3, 432);
             this.LabelIdentificacionVehiculo.Name = "LabelIdentificacionVehiculo";
-            this.LabelIdentificacionVehiculo.Size = new System.Drawing.Size(238, 36);
+            this.tableLayoutPanel1.SetRowSpan(this.LabelIdentificacionVehiculo, 2);
+            this.LabelIdentificacionVehiculo.Size = new System.Drawing.Size(228, 36);
             this.LabelIdentificacionVehiculo.TabIndex = 25;
             this.LabelIdentificacionVehiculo.Text = "INGRESAR IDENTIFICACION DEL VEHICULO";
             this.LabelIdentificacionVehiculo.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
