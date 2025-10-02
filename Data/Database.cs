@@ -54,7 +54,7 @@ namespace Parking.Data
                         Id INTEGER PRIMARY KEY AUTOINCREMENT,
                         Vehicle_id INTEGER NOT NULL,
                         EntryTime DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                        State TEXT CHECK(State IN ('abierto','cerrado','facturado')) DEFAULT 'abierto',
+                        State TEXT CHECK(State IN ('abierto','cerrado','facturado','vip')) DEFAULT 'abierto',
                         FOREIGN KEY (Vehicle_id) REFERENCES vehicles(Id)
                     )");
 

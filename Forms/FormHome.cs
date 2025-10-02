@@ -294,6 +294,7 @@ namespace Parking
             carClickedStyle();
             motorBikeDefaultStyle();
             bikeDefaultStyle();
+            hideElementsVip();
             currentTypeVehicle = VehicleTypeCode.Car;
         }
 
@@ -309,6 +310,7 @@ namespace Parking
             motorBikeClickedStyle();
             carDefaultStyle();
             bikeDefaultStyle();
+            hideElementsVip();
             currentTypeVehicle = VehicleTypeCode.Motorbike;
         }
 
@@ -324,6 +326,7 @@ namespace Parking
             bikeClickedStyle();
             carDefaultStyle();
             motorBikeDefaultStyle();
+            hideElementsVip();
             currentTypeVehicle = VehicleTypeCode.Bike;
         }
 
@@ -679,6 +682,34 @@ namespace Parking
             buttonPayed.Visible = true;
         }
 
+        private void hideButtonSaveVehicle()
+        {
+            buttonSaveVehicle.Visible = false ;
+        }
+
+        private void showVipElements()
+        {
+            labelTextSpecialFee.Visible = true;
+            textBoxSpecialFee.Visible = true;
+            guardarVIP.Visible = true;
+
+            tableLayoutPanel1.SetRow(labelTextSpecialFee,12);
+            tableLayoutPanel1.SetColumn(labelTextSpecialFee, 11);
+
+            tableLayoutPanel1.SetRow(textBoxSpecialFee, 12);
+            tableLayoutPanel1.SetColumn(textBoxSpecialFee, 12);
+
+            tableLayoutPanel1.SetRow(guardarVIP, 12);
+            tableLayoutPanel1.SetColumn(guardarVIP, 13);
+        }
+
+        private void hideElementsVip()
+        {
+            labelTextSpecialFee.Visible = false;
+            textBoxSpecialFee.Visible = false;
+            guardarVIP.Visible = false;
+        }
+
         private void hideElapsedTime()
         {
             label4.Visible = false;
@@ -844,6 +875,17 @@ namespace Parking
         private void textBoxScanner_TextChanged_1(object sender, EventArgs e)
         {
 
+        }
+
+        private void guardarVIP_Click(object sender, EventArgs e)
+        {
+            
+        }
+
+        private void buttonVIP_Click(object sender, EventArgs e)
+        {
+            showVipElements();
+            hideButtonSaveVehicle();
         }
     }
 }

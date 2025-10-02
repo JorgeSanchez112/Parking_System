@@ -58,6 +58,10 @@
             this.LabelIdentificacionVehiculo = new System.Windows.Forms.Label();
             this.textBox2 = new System.Windows.Forms.TextBox();
             this.buttonValidateOwner = new System.Windows.Forms.Button();
+            this.buttonVIP = new System.Windows.Forms.Button();
+            this.guardarVIP = new System.Windows.Forms.Button();
+            this.textBoxSpecialFee = new System.Windows.Forms.TextBox();
+            this.labelTextSpecialFee = new System.Windows.Forms.Label();
             this.menuStrip1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
@@ -76,7 +80,7 @@
             this.listaVehiculosToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1325, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(1343, 24);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -141,6 +145,10 @@
             this.tableLayoutPanel1.Controls.Add(this.LabelIdentificacionVehiculo, 0, 12);
             this.tableLayoutPanel1.Controls.Add(this.textBox2, 4, 12);
             this.tableLayoutPanel1.Controls.Add(this.buttonValidateOwner, 4, 13);
+            this.tableLayoutPanel1.Controls.Add(this.buttonVIP, 0, 1);
+            this.tableLayoutPanel1.Controls.Add(this.labelTextSpecialFee, 14, 14);
+            this.tableLayoutPanel1.Controls.Add(this.textBoxSpecialFee, 15, 14);
+            this.tableLayoutPanel1.Controls.Add(this.guardarVIP, 16, 14);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 24);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -165,7 +173,7 @@
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 5F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 5F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 5F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(1325, 739);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(1343, 701);
             this.tableLayoutPanel1.TabIndex = 5;
             this.tableLayoutPanel1.Paint += new System.Windows.Forms.PaintEventHandler(this.tableLayoutPanel1_Paint);
             // 
@@ -178,7 +186,7 @@
             this.flowLayoutPanel1.Controls.Add(this.label3);
             this.flowLayoutPanel1.Controls.Add(this.pictureBox3);
             this.flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.flowLayoutPanel1.Location = new System.Drawing.Point(931, 152);
+            this.flowLayoutPanel1.Location = new System.Drawing.Point(947, 145);
             this.flowLayoutPanel1.Margin = new System.Windows.Forms.Padding(0);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
             this.tableLayoutPanel1.SetRowSpan(this.flowLayoutPanel1, 7);
@@ -221,7 +229,7 @@
             this.flowLayoutPanel4.Controls.Add(this.label2);
             this.flowLayoutPanel4.Controls.Add(this.pictureBox2);
             this.flowLayoutPanel4.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.flowLayoutPanel4.Location = new System.Drawing.Point(535, 152);
+            this.flowLayoutPanel4.Location = new System.Drawing.Point(545, 145);
             this.flowLayoutPanel4.Margin = new System.Windows.Forms.Padding(0);
             this.flowLayoutPanel4.Name = "flowLayoutPanel4";
             this.tableLayoutPanel1.SetRowSpan(this.flowLayoutPanel4, 7);
@@ -263,9 +271,9 @@
             this.label4.Dock = System.Windows.Forms.DockStyle.Right;
             this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 30F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
             this.label4.ForeColor = System.Drawing.SystemColors.HighlightText;
-            this.label4.Location = new System.Drawing.Point(351, 504);
+            this.label4.Location = new System.Drawing.Point(361, 490);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(306, 36);
+            this.label4.Size = new System.Drawing.Size(306, 35);
             this.label4.TabIndex = 7;
             this.label4.Text = "Tiempo Transcurrido: ";
             this.label4.Visible = false;
@@ -279,7 +287,7 @@
             this.flowLayoutPanel2.Controls.Add(this.label1);
             this.flowLayoutPanel2.Controls.Add(this.pictureBox1);
             this.flowLayoutPanel2.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.flowLayoutPanel2.Location = new System.Drawing.Point(73, 152);
+            this.flowLayoutPanel2.Location = new System.Drawing.Point(76, 145);
             this.flowLayoutPanel2.Margin = new System.Windows.Forms.Padding(0);
             this.flowLayoutPanel2.Name = "flowLayoutPanel2";
             this.tableLayoutPanel1.SetRowSpan(this.flowLayoutPanel2, 7);
@@ -318,12 +326,14 @@
             // 
             // textBox1
             // 
+            this.textBox1.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.textBox1.BackColor = System.Drawing.Color.WhiteSmoke;
             this.tableLayoutPanel1.SetColumnSpan(this.textBox1, 2);
             this.textBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
-            this.textBox1.Location = new System.Drawing.Point(663, 435);
+            this.textBox1.Location = new System.Drawing.Point(674, 443);
             this.textBox1.MaxLength = 0;
             this.textBox1.Name = "textBox1";
+            this.tableLayoutPanel1.SetRowSpan(this.textBox1, 2);
             this.textBox1.Size = new System.Drawing.Size(126, 24);
             this.textBox1.TabIndex = 11;
             this.textBox1.Visible = false;
@@ -338,9 +348,10 @@
             this.label6.Dock = System.Windows.Forms.DockStyle.Right;
             this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
             this.label6.ForeColor = System.Drawing.Color.Wheat;
-            this.label6.Location = new System.Drawing.Point(475, 432);
+            this.label6.Location = new System.Drawing.Point(485, 420);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(182, 36);
+            this.tableLayoutPanel1.SetRowSpan(this.label6, 2);
+            this.label6.Size = new System.Drawing.Size(182, 70);
             this.label6.TabIndex = 12;
             this.label6.Text = "INGRESAR NUMERO DE IDENTIFICACION";
             this.label6.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -355,9 +366,9 @@
             this.labelTitleParking.Dock = System.Windows.Forms.DockStyle.Fill;
             this.labelTitleParking.Font = new System.Drawing.Font("Microsoft Sans Serif", 30F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
             this.labelTitleParking.ForeColor = System.Drawing.SystemColors.Control;
-            this.labelTitleParking.Location = new System.Drawing.Point(465, 0);
+            this.labelTitleParking.Location = new System.Drawing.Point(472, 0);
             this.labelTitleParking.Name = "labelTitleParking";
-            this.labelTitleParking.Size = new System.Drawing.Size(390, 36);
+            this.labelTitleParking.Size = new System.Drawing.Size(396, 35);
             this.labelTitleParking.TabIndex = 13;
             this.labelTitleParking.Text = "Nombre parqueadero";
             this.labelTitleParking.TextAlign = System.Drawing.ContentAlignment.TopCenter;
@@ -370,7 +381,7 @@
             this.tableLayoutPanel1.SetColumnSpan(this.labelElapsedValue, 3);
             this.labelElapsedValue.Font = new System.Drawing.Font("Microsoft Sans Serif", 25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
             this.labelElapsedValue.ForeColor = System.Drawing.SystemColors.HighlightText;
-            this.labelElapsedValue.Location = new System.Drawing.Point(663, 504);
+            this.labelElapsedValue.Location = new System.Drawing.Point(673, 490);
             this.labelElapsedValue.Name = "labelElapsedValue";
             this.labelElapsedValue.Size = new System.Drawing.Size(111, 29);
             this.labelElapsedValue.TabIndex = 15;
@@ -386,9 +397,9 @@
             this.label7.Dock = System.Windows.Forms.DockStyle.Right;
             this.label7.Font = new System.Drawing.Font("Microsoft Sans Serif", 30F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
             this.label7.ForeColor = System.Drawing.SystemColors.HighlightText;
-            this.label7.Location = new System.Drawing.Point(556, 576);
+            this.label7.Location = new System.Drawing.Point(566, 560);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(101, 36);
+            this.label7.Size = new System.Drawing.Size(101, 35);
             this.label7.TabIndex = 14;
             this.label7.Text = "Costo:";
             this.label7.Visible = false;
@@ -400,7 +411,7 @@
             this.tableLayoutPanel1.SetColumnSpan(this.labelCostValue, 3);
             this.labelCostValue.Font = new System.Drawing.Font("Microsoft Sans Serif", 25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
             this.labelCostValue.ForeColor = System.Drawing.SystemColors.HighlightText;
-            this.labelCostValue.Location = new System.Drawing.Point(663, 576);
+            this.labelCostValue.Location = new System.Drawing.Point(673, 560);
             this.labelCostValue.Name = "labelCostValue";
             this.labelCostValue.Size = new System.Drawing.Size(184, 29);
             this.labelCostValue.TabIndex = 16;
@@ -414,9 +425,9 @@
             this.tableLayoutPanel1.SetColumnSpan(this.buttonGenerateBill, 2);
             this.buttonGenerateBill.Dock = System.Windows.Forms.DockStyle.Fill;
             this.buttonGenerateBill.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
-            this.buttonGenerateBill.Location = new System.Drawing.Point(465, 651);
+            this.buttonGenerateBill.Location = new System.Drawing.Point(472, 633);
             this.buttonGenerateBill.Name = "buttonGenerateBill";
-            this.buttonGenerateBill.Size = new System.Drawing.Size(126, 30);
+            this.buttonGenerateBill.Size = new System.Drawing.Size(128, 29);
             this.buttonGenerateBill.TabIndex = 17;
             this.buttonGenerateBill.Text = "Generar Factura";
             this.buttonGenerateBill.UseVisualStyleBackColor = false;
@@ -430,9 +441,9 @@
             this.tableLayoutPanel1.SetColumnSpan(this.buttonPayed, 2);
             this.buttonPayed.Dock = System.Windows.Forms.DockStyle.Fill;
             this.buttonPayed.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
-            this.buttonPayed.Location = new System.Drawing.Point(729, 651);
+            this.buttonPayed.Location = new System.Drawing.Point(740, 633);
             this.buttonPayed.Name = "buttonPayed";
-            this.buttonPayed.Size = new System.Drawing.Size(126, 30);
+            this.buttonPayed.Size = new System.Drawing.Size(128, 29);
             this.buttonPayed.TabIndex = 18;
             this.buttonPayed.Text = "Factura Pagada";
             this.buttonPayed.UseVisualStyleBackColor = false;
@@ -441,12 +452,14 @@
             // 
             // buttonSaveVehicle
             // 
+            this.buttonSaveVehicle.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.buttonSaveVehicle.AutoSize = true;
             this.buttonSaveVehicle.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
             this.tableLayoutPanel1.SetColumnSpan(this.buttonSaveVehicle, 4);
             this.buttonSaveVehicle.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
-            this.buttonSaveVehicle.Location = new System.Drawing.Point(795, 435);
+            this.buttonSaveVehicle.Location = new System.Drawing.Point(818, 441);
             this.buttonSaveVehicle.Name = "buttonSaveVehicle";
+            this.tableLayoutPanel1.SetRowSpan(this.buttonSaveVehicle, 2);
             this.buttonSaveVehicle.Size = new System.Drawing.Size(239, 28);
             this.buttonSaveVehicle.TabIndex = 19;
             this.buttonSaveVehicle.Text = "GUARDAR Y GENERAR TICKET";
@@ -462,9 +475,9 @@
             this.labelMessageError.Dock = System.Windows.Forms.DockStyle.Fill;
             this.labelMessageError.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
             this.labelMessageError.ForeColor = System.Drawing.Color.Red;
-            this.labelMessageError.Location = new System.Drawing.Point(465, 72);
+            this.labelMessageError.Location = new System.Drawing.Point(472, 70);
             this.labelMessageError.Name = "labelMessageError";
-            this.labelMessageError.Size = new System.Drawing.Size(390, 36);
+            this.labelMessageError.Size = new System.Drawing.Size(396, 35);
             this.labelMessageError.TabIndex = 20;
             this.labelMessageError.Text = "Error";
             this.labelMessageError.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -473,9 +486,11 @@
             // 
             // textBoxScanner
             // 
-            this.textBoxScanner.Location = new System.Drawing.Point(1257, 39);
+            this.textBoxScanner.BackColor = System.Drawing.Color.DarkBlue;
+            this.textBoxScanner.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.textBoxScanner.Location = new System.Drawing.Point(1276, 38);
             this.textBoxScanner.Name = "textBoxScanner";
-            this.textBoxScanner.Size = new System.Drawing.Size(65, 20);
+            this.textBoxScanner.Size = new System.Drawing.Size(64, 13);
             this.textBoxScanner.TabIndex = 21;
             this.textBoxScanner.TextChanged += new System.EventHandler(this.textBoxScanner_TextChanged_1);
             // 
@@ -486,9 +501,9 @@
             this.tableLayoutPanel1.SetColumnSpan(this.buttonFocuScanner, 2);
             this.buttonFocuScanner.Dock = System.Windows.Forms.DockStyle.Fill;
             this.buttonFocuScanner.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
-            this.buttonFocuScanner.Location = new System.Drawing.Point(1191, 435);
+            this.buttonFocuScanner.Location = new System.Drawing.Point(1209, 423);
             this.buttonFocuScanner.Name = "buttonFocuScanner";
-            this.buttonFocuScanner.Size = new System.Drawing.Size(131, 30);
+            this.buttonFocuScanner.Size = new System.Drawing.Size(131, 29);
             this.buttonFocuScanner.TabIndex = 22;
             this.buttonFocuScanner.Text = "Escanear";
             this.buttonFocuScanner.UseVisualStyleBackColor = false;
@@ -503,8 +518,9 @@
             this.LabelIdentificacionVehiculo.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
             this.LabelIdentificacionVehiculo.ForeColor = System.Drawing.Color.Wheat;
             this.LabelIdentificacionVehiculo.ImageAlign = System.Drawing.ContentAlignment.BottomLeft;
-            this.LabelIdentificacionVehiculo.Location = new System.Drawing.Point(3, 432);
+            this.LabelIdentificacionVehiculo.Location = new System.Drawing.Point(3, 420);
             this.LabelIdentificacionVehiculo.Name = "LabelIdentificacionVehiculo";
+            this.tableLayoutPanel1.SetRowSpan(this.LabelIdentificacionVehiculo, 2);
             this.LabelIdentificacionVehiculo.Size = new System.Drawing.Size(238, 36);
             this.LabelIdentificacionVehiculo.TabIndex = 25;
             this.LabelIdentificacionVehiculo.Text = "INGRESAR IDENTIFICACION DEL VEHICULO";
@@ -516,9 +532,9 @@
             this.tableLayoutPanel1.SetColumnSpan(this.textBox2, 2);
             this.textBox2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.textBox2.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
-            this.textBox2.Location = new System.Drawing.Point(267, 435);
+            this.textBox2.Location = new System.Drawing.Point(271, 423);
             this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(126, 24);
+            this.textBox2.Size = new System.Drawing.Size(128, 24);
             this.textBox2.TabIndex = 24;
             this.textBox2.TextChanged += new System.EventHandler(this.textBox2_TextChanged_1);
             // 
@@ -528,19 +544,78 @@
             this.tableLayoutPanel1.SetColumnSpan(this.buttonValidateOwner, 2);
             this.buttonValidateOwner.Dock = System.Windows.Forms.DockStyle.Fill;
             this.buttonValidateOwner.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
-            this.buttonValidateOwner.Location = new System.Drawing.Point(267, 471);
+            this.buttonValidateOwner.Location = new System.Drawing.Point(271, 458);
             this.buttonValidateOwner.Name = "buttonValidateOwner";
-            this.buttonValidateOwner.Size = new System.Drawing.Size(126, 30);
+            this.buttonValidateOwner.Size = new System.Drawing.Size(128, 29);
             this.buttonValidateOwner.TabIndex = 23;
             this.buttonValidateOwner.Text = "Validar";
             this.buttonValidateOwner.UseVisualStyleBackColor = false;
             this.buttonValidateOwner.Click += new System.EventHandler(this.buttonValidateOwner_Click);
             // 
+            // buttonVIP
+            // 
+            this.buttonVIP.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            this.buttonVIP.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
+            this.buttonVIP.Location = new System.Drawing.Point(3, 38);
+            this.buttonVIP.Name = "buttonVIP";
+            this.buttonVIP.Size = new System.Drawing.Size(61, 23);
+            this.buttonVIP.TabIndex = 26;
+            this.buttonVIP.Text = "VIP";
+            this.buttonVIP.UseVisualStyleBackColor = false;
+            this.buttonVIP.Click += new System.EventHandler(this.buttonVIP_Click);
+            // 
+            // guardarVIP
+            // 
+            this.guardarVIP.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.guardarVIP.AutoSize = true;
+            this.guardarVIP.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            this.tableLayoutPanel1.SetColumnSpan(this.guardarVIP, 2);
+            this.guardarVIP.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
+            this.guardarVIP.Location = new System.Drawing.Point(1080, 511);
+            this.guardarVIP.Name = "guardarVIP";
+            this.tableLayoutPanel1.SetRowSpan(this.guardarVIP, 2);
+            this.guardarVIP.Size = new System.Drawing.Size(118, 28);
+            this.guardarVIP.TabIndex = 27;
+            this.guardarVIP.Text = "GUARDAR VIP";
+            this.guardarVIP.UseVisualStyleBackColor = false;
+            this.guardarVIP.Visible = false;
+            this.guardarVIP.Click += new System.EventHandler(this.guardarVIP_Click);
+            // 
+            // textBoxSpecialFee
+            // 
+            this.textBoxSpecialFee.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.textBoxSpecialFee.BackColor = System.Drawing.Color.WhiteSmoke;
+            this.textBoxSpecialFee.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
+            this.textBoxSpecialFee.Location = new System.Drawing.Point(1008, 513);
+            this.textBoxSpecialFee.MaxLength = 7;
+            this.textBoxSpecialFee.Name = "textBoxSpecialFee";
+            this.tableLayoutPanel1.SetRowSpan(this.textBoxSpecialFee, 2);
+            this.textBoxSpecialFee.Size = new System.Drawing.Size(61, 24);
+            this.textBoxSpecialFee.TabIndex = 28;
+            this.textBoxSpecialFee.TabStop = false;
+            this.textBoxSpecialFee.Visible = false;
+            // 
+            // labelTextSpecialFee
+            // 
+            this.labelTextSpecialFee.AutoSize = true;
+            this.labelTextSpecialFee.BackColor = System.Drawing.Color.Transparent;
+            this.labelTextSpecialFee.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.labelTextSpecialFee.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
+            this.labelTextSpecialFee.ForeColor = System.Drawing.Color.Wheat;
+            this.labelTextSpecialFee.Location = new System.Drawing.Point(941, 490);
+            this.labelTextSpecialFee.Name = "labelTextSpecialFee";
+            this.tableLayoutPanel1.SetRowSpan(this.labelTextSpecialFee, 2);
+            this.labelTextSpecialFee.Size = new System.Drawing.Size(61, 70);
+            this.labelTextSpecialFee.TabIndex = 29;
+            this.labelTextSpecialFee.Text = "COSTO";
+            this.labelTextSpecialFee.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.labelTextSpecialFee.Visible = false;
+            // 
             // FormHome
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1325, 763);
+            this.ClientSize = new System.Drawing.Size(1343, 725);
             this.Controls.Add(this.tableLayoutPanel1);
             this.Controls.Add(this.menuStrip1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -596,6 +671,10 @@
         private System.Windows.Forms.Button buttonValidateOwner;
         private System.Windows.Forms.TextBox textBox2;
         private System.Windows.Forms.Label LabelIdentificacionVehiculo;
+        private System.Windows.Forms.Button buttonVIP;
+        private System.Windows.Forms.Button guardarVIP;
+        private System.Windows.Forms.TextBox textBoxSpecialFee;
+        private System.Windows.Forms.Label labelTextSpecialFee;
     }
 }
 
