@@ -473,11 +473,12 @@
             this.labelMessageError.BackColor = System.Drawing.Color.Transparent;
             this.tableLayoutPanel1.SetColumnSpan(this.labelMessageError, 6);
             this.labelMessageError.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.labelMessageError.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
+            this.labelMessageError.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Pixel);
             this.labelMessageError.ForeColor = System.Drawing.Color.Red;
             this.labelMessageError.Location = new System.Drawing.Point(472, 70);
             this.labelMessageError.Name = "labelMessageError";
-            this.labelMessageError.Size = new System.Drawing.Size(396, 35);
+            this.tableLayoutPanel1.SetRowSpan(this.labelMessageError, 2);
+            this.labelMessageError.Size = new System.Drawing.Size(390, 72);
             this.labelMessageError.TabIndex = 20;
             this.labelMessageError.Text = "Error";
             this.labelMessageError.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -515,7 +516,7 @@
             this.LabelIdentificacionVehiculo.AutoSize = true;
             this.LabelIdentificacionVehiculo.BackColor = System.Drawing.Color.Transparent;
             this.tableLayoutPanel1.SetColumnSpan(this.LabelIdentificacionVehiculo, 4);
-            this.LabelIdentificacionVehiculo.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
+            this.LabelIdentificacionVehiculo.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.LabelIdentificacionVehiculo.ForeColor = System.Drawing.Color.Wheat;
             this.LabelIdentificacionVehiculo.ImageAlign = System.Drawing.ContentAlignment.BottomLeft;
             this.LabelIdentificacionVehiculo.Location = new System.Drawing.Point(3, 420);
