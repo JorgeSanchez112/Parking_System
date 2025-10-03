@@ -59,9 +59,9 @@
             this.textBox2 = new System.Windows.Forms.TextBox();
             this.buttonValidateOwner = new System.Windows.Forms.Button();
             this.buttonVIP = new System.Windows.Forms.Button();
-            this.guardarVIP = new System.Windows.Forms.Button();
-            this.textBoxSpecialFee = new System.Windows.Forms.TextBox();
             this.labelTextSpecialFee = new System.Windows.Forms.Label();
+            this.textBoxSpecialFee = new System.Windows.Forms.TextBox();
+            this.guardarVIP = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
@@ -564,6 +564,36 @@
             this.buttonVIP.UseVisualStyleBackColor = false;
             this.buttonVIP.Click += new System.EventHandler(this.buttonVIP_Click);
             // 
+            // labelTextSpecialFee
+            // 
+            this.labelTextSpecialFee.AutoSize = true;
+            this.labelTextSpecialFee.BackColor = System.Drawing.Color.Transparent;
+            this.labelTextSpecialFee.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.labelTextSpecialFee.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
+            this.labelTextSpecialFee.ForeColor = System.Drawing.Color.Wheat;
+            this.labelTextSpecialFee.Location = new System.Drawing.Point(941, 490);
+            this.labelTextSpecialFee.Name = "labelTextSpecialFee";
+            this.tableLayoutPanel1.SetRowSpan(this.labelTextSpecialFee, 2);
+            this.labelTextSpecialFee.Size = new System.Drawing.Size(61, 70);
+            this.labelTextSpecialFee.TabIndex = 29;
+            this.labelTextSpecialFee.Text = "COSTO";
+            this.labelTextSpecialFee.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.labelTextSpecialFee.Visible = false;
+            // 
+            // textBoxSpecialFee
+            // 
+            this.textBoxSpecialFee.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.textBoxSpecialFee.BackColor = System.Drawing.Color.WhiteSmoke;
+            this.textBoxSpecialFee.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
+            this.textBoxSpecialFee.Location = new System.Drawing.Point(1008, 513);
+            this.textBoxSpecialFee.MaxLength = 7;
+            this.textBoxSpecialFee.Name = "textBoxSpecialFee";
+            this.tableLayoutPanel1.SetRowSpan(this.textBoxSpecialFee, 2);
+            this.textBoxSpecialFee.Size = new System.Drawing.Size(61, 24);
+            this.textBoxSpecialFee.TabIndex = 28;
+            this.textBoxSpecialFee.TabStop = false;
+            this.textBoxSpecialFee.Visible = false;
+            // 
             // guardarVIP
             // 
             this.guardarVIP.Anchor = System.Windows.Forms.AnchorStyles.None;
@@ -580,36 +610,6 @@
             this.guardarVIP.UseVisualStyleBackColor = false;
             this.guardarVIP.Visible = false;
             this.guardarVIP.Click += new System.EventHandler(this.guardarVIP_Click);
-            // 
-            // textBoxSpecialFee
-            // 
-            this.textBoxSpecialFee.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.textBoxSpecialFee.BackColor = System.Drawing.Color.WhiteSmoke;
-            this.textBoxSpecialFee.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
-            this.textBoxSpecialFee.Location = new System.Drawing.Point(1008, 513);
-            this.textBoxSpecialFee.MaxLength = 7;
-            this.textBoxSpecialFee.Name = "textBoxSpecialFee";
-            this.tableLayoutPanel1.SetRowSpan(this.textBoxSpecialFee, 2);
-            this.textBoxSpecialFee.Size = new System.Drawing.Size(61, 24);
-            this.textBoxSpecialFee.TabIndex = 28;
-            this.textBoxSpecialFee.TabStop = false;
-            this.textBoxSpecialFee.Visible = false;
-            // 
-            // labelTextSpecialFee
-            // 
-            this.labelTextSpecialFee.AutoSize = true;
-            this.labelTextSpecialFee.BackColor = System.Drawing.Color.Transparent;
-            this.labelTextSpecialFee.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.labelTextSpecialFee.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
-            this.labelTextSpecialFee.ForeColor = System.Drawing.Color.Wheat;
-            this.labelTextSpecialFee.Location = new System.Drawing.Point(941, 490);
-            this.labelTextSpecialFee.Name = "labelTextSpecialFee";
-            this.tableLayoutPanel1.SetRowSpan(this.labelTextSpecialFee, 2);
-            this.labelTextSpecialFee.Size = new System.Drawing.Size(61, 70);
-            this.labelTextSpecialFee.TabIndex = 29;
-            this.labelTextSpecialFee.Text = "COSTO";
-            this.labelTextSpecialFee.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            this.labelTextSpecialFee.Visible = false;
             // 
             // FormHome
             // 
