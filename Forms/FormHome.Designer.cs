@@ -478,7 +478,7 @@
             this.labelMessageError.Location = new System.Drawing.Point(472, 70);
             this.labelMessageError.Name = "labelMessageError";
             this.tableLayoutPanel1.SetRowSpan(this.labelMessageError, 2);
-            this.labelMessageError.Size = new System.Drawing.Size(390, 72);
+            this.labelMessageError.Size = new System.Drawing.Size(396, 70);
             this.labelMessageError.TabIndex = 20;
             this.labelMessageError.Text = "Error";
             this.labelMessageError.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -522,7 +522,7 @@
             this.LabelIdentificacionVehiculo.Location = new System.Drawing.Point(3, 420);
             this.LabelIdentificacionVehiculo.Name = "LabelIdentificacionVehiculo";
             this.tableLayoutPanel1.SetRowSpan(this.LabelIdentificacionVehiculo, 2);
-            this.LabelIdentificacionVehiculo.Size = new System.Drawing.Size(238, 36);
+            this.LabelIdentificacionVehiculo.Size = new System.Drawing.Size(228, 36);
             this.LabelIdentificacionVehiculo.TabIndex = 25;
             this.LabelIdentificacionVehiculo.Text = "INGRESAR IDENTIFICACION DEL VEHICULO";
             this.LabelIdentificacionVehiculo.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
