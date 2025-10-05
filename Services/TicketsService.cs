@@ -2,9 +2,6 @@
 using Parking.Models;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Parking
 {
@@ -37,6 +34,11 @@ namespace Parking
             return _ticketsRepository.GetActiveTicketIdByOwnerId(ownerId);
         }
 
+
+        public int getCheckinIdByTicketId(int ticketId)
+        {
+            return _ticketsRepository.getCheckinIdByTicketId(ticketId);
+        }
 
         public PrintData getPrintData(int id)
         {

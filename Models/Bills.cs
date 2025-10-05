@@ -45,5 +45,11 @@ namespace Parking.Models
             get => _checkin_time;
             set => _checkin_time = value;
         }
+
+        public VehicleType VehicleType { get; set; }
+        public Vehicles Vehicle { get; set; }
+        public Tickets Ticket { get; set; }
+        public Checkins Checkin { get; set; }
+        public InfoParking InfoParking { get; set; }
     }
 }

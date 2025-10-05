@@ -57,6 +57,47 @@ namespace Parking.Services
             }
         }
 
+        public void RegisterVehicleCheckinWithBill(Vehicles vehicles, Checkins checkins, Tickets tickets, Bills bill)
+        {
+            using (var con = DbConnectionFactory.GetConnection())
+            {
+                con.Open();
+                using (var tran = con.BeginTransaction())
+                {
+                    try
+                    {
+                        // 1. Insert vehícle
+                        long vehicleId = vehiclesRepo.insert(con, tran, vehicles);
+
+                        checkins.Vehicle_id = (int)vehicleId;
+                        if (checkins.Vehicle_id < 0)
+                            throw new Exception("El vehicle id no puede ser menor a 0.");
+
+                        // 2. Insert checkin
+                        long checkinId = checkinsRepo.insert(con, tran, checkins);
+
+                        tickets.Checkin_id = (int)checkinId;
+                        if (tickets.Checkin_id < 0)
+                            throw new Exception("El checkin id no puede ser menor a 0.");
+
+                        // 3. Insert ticket
+                        ticketsRepo.insert(con, tran, tickets);
+
+                        // 4. Insert bill
+                        bill.Checkin_id = (int)checkinId;
+                        billsRepository.insertWithTransaction(con, tran, bill);
+
+                        tran.Commit(); // Everything OK
+                    }
+                    catch
+                    {
+                        tran.Rollback(); // If something fail, everything is undone
+                        throw;
+                    }
+                }
+            }
+        }
+
         public void RegisterCheckin(int idVehicle , Checkins checkins, Tickets tickets)
         {
             using (var con = DbConnectionFactory.GetConnection())
@@ -80,6 +121,45 @@ namespace Parking.Services
 
                         // 2. Insert ticket
                         ticketsRepo.insert(con, tran, tickets);
+
+                        tran.Commit(); // Everything OK
+                    }
+                    catch
+                    {
+                        tran.Rollback(); // If something fail, everything is undone
+                        throw;
+                    }
+                }
+            }
+        }
+
+        public void RegisterCheckinWithBill(int idVehicle, Checkins checkins, Tickets tickets, Bills bills)
+        {
+            using (var con = DbConnectionFactory.GetConnection())
+            {
+                con.Open();
+                using (var tran = con.BeginTransaction())
+                {
+                    try
+                    {
+
+                        checkins.Vehicle_id = idVehicle;
+                        if (checkins.Vehicle_id < 0)
+                            throw new Exception("El vehicle id no puede ser menor a 0.");
+
+                        // 1. Insert checkin
+                        long checkinId = checkinsRepo.insert(con, tran, checkins);
+
+                        tickets.Checkin_id = (int)checkinId;
+                        if (tickets.Checkin_id < 0)
+                            throw new Exception("El checkin id no puede ser menor a 0.");
+
+                        // 2. Insert ticket
+                        ticketsRepo.insert(con, tran, tickets);
+
+                        // 3. Insert bill
+                        billsRepository.insertWithTransaction(con, tran, bills);
+
 
                         tran.Commit(); // Everything OK
                     }

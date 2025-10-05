@@ -2,9 +2,6 @@
 using Parking.Models;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Parking.Data
 {
@@ -65,6 +62,21 @@ namespace Parking.Data
 
             return list;
 
+        }
+
+        public int getCheckinIdByTicketId(int ticketId)
+        {
+            using (var con = DbConnectionFactory.GetConnection())
+            {
+                con.Open();
+                var cmd = con.CreateCommand();
+
+                cmd.CommandText = "SELECT Checkin_id FROM tickets WHERE Id = @TicketId LIMIT 1;";
+                cmd.Parameters.AddWithValue("@TicketId", ticketId);
+
+                var result = cmd.ExecuteScalar();
+                return Convert.ToInt32(result);
+            }
         }
 
         public void update(Tickets tickets)
@@ -129,7 +141,7 @@ namespace Parking.Data
                 connection.Open();
                 var query = @" SELECT t.Id FROM checkins c INNER JOIN vehicles v ON v.Id = c.Vehicle_id INNER JOIN tickets t ON t.Checkin_id = c.Id
                     WHERE v.License_plate = @LicensePlate
-                    AND c.State = 'abierto'
+                    AND c.State IN ('abierto', 'vip')
                     LIMIT 1";   // If there are more than one, return just one
 
                 using (var cmd = new SqliteCommand(query, connection))
@@ -148,7 +160,7 @@ namespace Parking.Data
                 connection.Open();
                 var query = @" SELECT t.Id FROM checkins c INNER JOIN vehicles v ON v.Id = c.Vehicle_id INNER JOIN tickets t ON t.Checkin_id = c.Id
                     WHERE v.Owner_id = @OwnerId
-                    AND c.State = 'abierto'
+                    AND c.State IN ('abierto', 'vip')
                     LIMIT 1"; // If there are more than one, return just one
 
                 using (var cmd = new SqliteCommand(query, connection))

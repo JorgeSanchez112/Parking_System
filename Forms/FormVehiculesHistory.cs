@@ -44,11 +44,14 @@ namespace Parking.Forms
         private void loadDataToDataGridView()
         {
             CheckinsService _checkinsService = new CheckinsService();
+            BillsService _billsService = new BillsService();
             VehiclesTypesService _vehicleTypesService = new VehiclesTypesService();
             ParkingService _parkingService = new ParkingService();
 
+
+            // ------------------------------------------------------------- COMMON -------------------------------------------------------------
             var checkins = _checkinsService.getAllCheckinsData()
-                .Where(c => c.State == "abierto") // only active/open checkins
+                .Where(c => c.State.Equals( CheckinsStateCode.abierto.ToString() ) ) // just active/open checkins
                 .ToList();
 
             var bindingList = checkins.Select(c =>
@@ -56,6 +59,7 @@ namespace Parking.Forms
                 int elapsedMinutes = _parkingService.getElapsedMinutes(DateTime.Now,c.EntryTime);
                     return new
                     {
+                        Category = "Regular",
                         VehicleTypeName = _vehicleTypesService.GetVehicleTypeSpanish(c.VehicleType?.Name),
                         VehicleInformation = !String.IsNullOrEmpty(c.Vehicle?.License_plate) ? c.Vehicle.License_plate : (!String.IsNullOrEmpty(c.Vehicle?.Owner_id) ? c.Vehicle.Owner_id : "N/A"), //First validate which information show and then translate resul into spanish
                         VehicleEntryTime = c.EntryTime,
@@ -64,10 +68,38 @@ namespace Parking.Forms
                     };
             }).ToList();
 
+
+
+            // ------------------------------------------------------------- VIP -------------------------------------------------------------
+            var bills = _billsService.getAllBills()
+               .Where(b => b.Checkin.State.Equals(CheckinsStateCode.vip.ToString())) // only vip checkins
+               .ToList();
+
+            var bindingList2 = bills.Select(b =>
+            {
+                int elapsedMinutes = _parkingService.getElapsedMinutes(DateTime.Now, b.Checkin.EntryTime);
+                return new
+                {
+
+                    Category = "VIP",
+                    VehicleTypeName = _vehicleTypesService.GetVehicleTypeSpanish(b.VehicleType?.Name),
+                    VehicleInformation = !String.IsNullOrEmpty(b.Vehicle?.License_plate) ? b.Vehicle.License_plate : (!String.IsNullOrEmpty(b.Vehicle?.Owner_id) ? b.Vehicle.Owner_id : "N/A"), //First validate which information show and then translate resul into spanish
+                    VehicleEntryTime = b.Checkin.EntryTime,
+                    ElapsedTime = $"{elapsedMinutes / 60}h {elapsedMinutes % 60}m",
+                    Cost = b.Total_pay
+                };
+            }).ToList();
+
+
+            // Combine both lists (common + VIP)
+            var combinedList = bindingList.Concat(bindingList2).ToList();
+
+            // ------------------------------------------------------------- SHOW DATA -------------------------------------------------------------
             dataGridView1.Invoke(new Action(() =>
             {
-                dataGridView1.DataSource = bindingList;
+                dataGridView1.DataSource = combinedList;
 
+                dataGridView1.Columns["Category"].HeaderText = "Origen";
                 dataGridView1.Columns["VehicleTypeName"].HeaderText = "Tipo de vehiculo";
                 dataGridView1.Columns["VehicleInformation"].HeaderText = "Informacion del vehiculo";
                 dataGridView1.Columns["VehicleEntryTime"].HeaderText = "Hora de entrada del vehiculo";

@@ -10,6 +10,7 @@ namespace Parking.Models
     {
         abierto,
         cerrado,
-        facturado
+        facturado,
+        vip
     }
 }

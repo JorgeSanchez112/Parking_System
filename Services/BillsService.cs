@@ -17,7 +17,7 @@ namespace Parking.Services
             _billsRepository.insert(bills);
         }
 
-        public List<Bills> getAllBills() => _billsRepository.GetAll();
+        public List<Bills> getAllBills() => _billsRepository.GetAllBills();
 
         public void updateBill(Bills bills)
         {
@@ -26,6 +26,11 @@ namespace Parking.Services
 
             _billsRepository.update(bills);
 
+        }
+
+        public Bills getBillByCheckinId(int checkinId)
+        {
+            return _billsRepository.getBillByCheckinId(checkinId);
         }
 
         public PrintData getPrintData(int id)
