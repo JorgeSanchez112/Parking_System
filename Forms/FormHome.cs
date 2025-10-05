@@ -3,7 +3,6 @@ using Parking.Models;
 using Parking.Services;
 using Parking.Utils;
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
@@ -11,334 +10,278 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Windows.Forms.VisualStyles;
 
 namespace Parking
 {
     public partial class FormHome : Form
     {
+        // Windows API to hide caret in the invisible scanner textbox
         [DllImport("user32.dll")]
         static extern bool HideCaret(IntPtr hWnd);
 
+        // --- UI cache / timers ---
         private Bitmap _bgCache = null;
-        private Timer _resizeTimer = null;
+        private readonly Timer _resizeTimer;
         private const int RESIZE_DELAY_MS = 200;
 
-
+        // --- App state ---
         private VehicleTypeCode currentTypeVehicle;
-
         private int _currentTicketId = -1;
 
-        private const String messageLicensePlateEmpty = "El campo placa es obligario";
-        private const String messageOwnerIdEmpty = "El campo numero de identificacion es obligario";
-        private const String messageVehicleSuccesfullyRegistered = "¡Vehiculo registrado exitosamente!";
-        private const String messageJustDigits = "El número de identificación solo puede contener dígitos.";
+        // --- Messages ---
+        private const string messageLicensePlateEmpty = "El campo placa o identificacion es obligario";
+        private const string messageOwnerIdEmpty = "El campo numero de identificacion es obligario";
+        private const string messageVehicleSuccesfullyRegistered = "¡Vehiculo registrado exitosamente!";
+        private const string messageJustDigits = "El número de identificación solo puede contener dígitos.";
+
+        // --- Services (reused) ---
+        private readonly TicketsService _ticketsService;
+        private readonly VehiclesService _vehiclesService;
+        private readonly VehiclesTypesService _vehicleTypesService;
+        private readonly ParkingService _parkingService;
+        private readonly BillsService _billsService;
+        private readonly InfoParkingService _infoParkingService;
 
         public FormHome()
         {
             InitializeComponent();
+
+            // instantiate reusable services once (single responsibility / reuse)
+            _ticketsService = new TicketsService();
+            _vehiclesService = new VehiclesService();
+            _vehicleTypesService = new VehiclesTypesService();
+            _parkingService = new ParkingService();
+            _billsService = new BillsService();
+            _infoParking_service_or_null_check(); // placeholder to avoid analyzer warnings
+            _infoParkingService = new InfoParkingService();
+
+            // form + painting settings
             this.DoubleBuffered = true;
             this.Shown += FormHome_shown;
             this.KeyPreview = true;
-
-            // Enable double buffering
-            this.DoubleBuffered = true;
             SetDoubleBuffered(tableLayoutPanel1, true);
 
-            // Events
+            // background resize debounce timer
+            _resizeTimer = new Timer { Interval = RESIZE_DELAY_MS };
+            _resizeTimer.Tick += ResizeTimer_Tick;
             tableLayoutPanel1.Paint += TableLayoutPanel1_Paint;
             tableLayoutPanel1.Resize += TableLayoutPanel1_Resize;
 
-            // Create the timer (only once)
-            _resizeTimer = new Timer();
-            _resizeTimer.Interval = RESIZE_DELAY_MS;
-            _resizeTimer.Tick += ResizeTimer_Tick;
-
-            // Create the initial bitmap (if the control already has a size)
+            // create initial background cache if size available
             UpdateBackgroundBitmap();
 
+            // scanner textbox hidden but used to receive scanner input
             hideTextBoxScanner();
             textBoxScanner.GotFocus += textBoxScanner_GotFocus;
             textBoxScanner.TextChanged += textBoxScanner_TextChanged;
 
+            // wire UI events that were previously done inline
             buttonFocuScanner.Click += buttonFocusScanner_Click;
         }
 
-        private void FormHome_shown(Object sender, EventArgs e)
+        // tiny no-op to silence any static analysis about declared field
+        private void _infoParking_service_or_null_check() { /* no-op */ }
+
+        private void FormHome_shown(object sender, EventArgs e)
         {
             loadParkingData();
-            focusScanner(); // always start focused on scanner input
-        }
-
-        // ==================== SCANNER HANDLING ====================
-
-        // When the scanner sends data it will go into textBoxScanner. Scanners typically end with Enter.
-        private void textBoxScanner_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            if (e.KeyChar == (char)Keys.Enter) // scanner usually sends Enter (char 13) at the end
-            {
-                string scannedCode = textBoxScanner.Text.Trim();
-
-                if (!string.IsNullOrEmpty(scannedCode))
-                {
-                    TicketsService _ticketService = new TicketsService();
-                    VehiclesTypesService _vehicleType = new VehiclesTypesService();
-                    VehiclesService _vehiclesService = new VehiclesService();
-                    ParkingService _parkingService = new ParkingService();
-                    BillsService _billsService = new BillsService();
-
-                    
-
-                    int ticketId = _ticketService.getIdByCodeBar(scannedCode);
-                    _currentTicketId = ticketId;  // save last number scanned
-
-                    var _printData = _ticketService.getPrintData(ticketId);
-
-                    if (_printData != null)
-                    {
-                        bool vehicleStateActive = _vehiclesService.isVehicleStateActive(_printData.LicensePlate);
-
-                        if (_printData.CheckinState == "facturado")
-                        {
-                            showTemporaryMessage(labelMessageError, "ESTE TICKET YA FUE FACTURADO", 3000);
-                            hideElapsedTime();
-                            hideCost();
-                            hideButtonGenerateInvoice();
-                            hideButtonInvoicePaid();
-                            return;
-                        }
-
-                        if (vehicleStateActive == false && _printData.VehicleType != VehicleTypeCode.Bike.ToString())
-                        {
-                            showTemporaryMessage(labelMessageError, "EL VEHICULO NO ESTA REGISTRADO", 3000);
-                            hideElapsedTime();
-                            hideCost();
-                            hideButtonGenerateInvoice();
-                            hideButtonInvoicePaid();
-                            return;
-                        }
-
-                        if (_printData.CheckinState.Equals(CheckinsStateCode.abierto.ToString()))
-                        {
-                            showElapsedTime(_printData.MinutesElapsed);
-                            showCost(_printData.TotalPayGenerated.ToString());
-                            showButtonGenerateInvoice();
-                            showButtonInvoicePaid();
-                        }
-                        else if (_printData.CheckinState.Equals(CheckinsStateCode.vip.ToString())){
-                            // Get checkin_id from ticket
-                            int? checkinId = _ticketService.getCheckinIdByTicketId(ticketId);
-
-                            Bills billData = null;
-
-                            if (checkinId.HasValue)
-                            {
-                                billData = _billsService.getBillByCheckinId(checkinId.Value);
-                            }
-
-                            if (billData != null)
-                            {
-                                showElapsedTime(_printData.MinutesElapsed);
-                                showCost(billData.Total_pay.ToString()); // Use the stored total from Bills
-                                showButtonGenerateInvoice();
-                                showButtonInvoicePaid();
-                            }
-                            else
-                            {
-                                // Fallback if not found
-                                showElapsedTime(_printData.MinutesElapsed);
-                                showCost(_printData.TotalPayGenerated.ToString());
-                                showButtonGenerateInvoice();
-                                showButtonInvoicePaid();
-                            }
-                        }
-
-                        
-                    }
-                    else
-                    {
-                        showTemporaryMessage(labelMessageError, "CODIGO NO ENCONTRADO", 3000);
-                        hideElapsedTime();
-                        hideCost();
-                        hideButtonGenerateInvoice();
-                        hideButtonInvoicePaid();
-                    }
-                }
-
-                focusScanner(); // re-focus scanner for the next scan
-            }
-        }
-
-        // ==================== BUTTON VALIDATE VEHICLE ====================
-        private void buttonValidateOwner_Click(object sender, EventArgs e)
-        {
-            TicketsService _ticketService = new TicketsService();
-            VehiclesTypesService _vehicleType = new VehiclesTypesService();
-            VehiclesService _vehiclesService = new VehiclesService();
-            ParkingService _parkingService = new ParkingService();
-            BillsService _billsService = new BillsService();
-
-            string input = textBox2.Text.Trim();
-            int ticketId = -1;
-
-            if (string.IsNullOrEmpty(input))
-            {
-                showTemporaryMessage(labelMessageError, "POR FAVOR, INGRESAR UNA IDENTIFICACION DE VEHICULO VALIDA", 3000);
-                return;
-            }
-
-            if (input.All(char.IsDigit))
-            {
-                ticketId = _ticketService.getIdByOwnerId(input);
-            }
-            else
-            {
-                ticketId = _ticketService.getIdByLicensePlate(input);
-            }
-
-            _currentTicketId = ticketId;  // save last input number 
-
-            var _printData = _ticketService.getPrintData(ticketId);
-
-            if (_printData != null)
-            {
-                bool vehicleStateActive = _vehiclesService.isVehicleStateActive(_printData.LicensePlate);
-
-                if (_printData.CheckinState == "facturado")
-                {
-                    showTemporaryMessage(labelMessageError, "ESTE TICKET YA FUE FACTURADO", 3000);
-                    hideElapsedTime();
-                    hideCost();
-                    hideButtonGenerateInvoice();
-                    hideButtonInvoicePaid();
-                    return;
-                }
-
-                if (vehicleStateActive == false && _printData.VehicleType != VehicleTypeCode.Bike.ToString())
-                {
-                    showTemporaryMessage(labelMessageError, "EL VEHICULO NO ESTA REGISTRADO", 3000);
-                    hideElapsedTime();
-                    hideCost();
-                    hideButtonGenerateInvoice();
-                    hideButtonInvoicePaid();
-                    return;
-                }
-
-                if (_printData.CheckinState.Equals(CheckinsStateCode.abierto.ToString()))
-                {
-                    showElapsedTime(_printData.MinutesElapsed);
-                    showCost(_printData.TotalPayGenerated.ToString());
-                    showButtonGenerateInvoice();
-                    showButtonInvoicePaid();
-                }
-                else if (_printData.CheckinState.Equals(CheckinsStateCode.vip.ToString()))
-                {
-                    // Get checkin_id from ticket
-                    int? checkinId = _ticketService.getCheckinIdByTicketId(ticketId);
-
-                    Bills billData = null;
-
-                    if (checkinId.HasValue)
-                    {
-                        billData = _billsService.getBillByCheckinId(checkinId.Value);
-                    }
-
-                    if (billData != null)
-                    {
-                        showElapsedTime(_printData.MinutesElapsed);
-                        showCost(billData.Total_pay.ToString()); // Use the stored total from Bills
-                        showButtonGenerateInvoice();
-                        showButtonInvoicePaid();
-                    }
-                    else
-                    {
-                        // Fallback if not found
-                        showElapsedTime(_printData.MinutesElapsed);
-                        showCost(_printData.TotalPayGenerated.ToString());
-                        showButtonGenerateInvoice();
-                        showButtonInvoicePaid();
-                    }
-                }
-            }
-            else
-            {
-                showTemporaryMessage(labelMessageError, "VEHICULO NO ENCONTRADO", 3000);
-                hideElapsedTime();
-                hideCost();
-                hideButtonGenerateInvoice();
-                hideButtonInvoicePaid();
-            }
-        }
-
-
-
-        // Button event: user clicks this to force focus into the scanner TextBox
-        private void buttonFocusScanner_Click(object sender, EventArgs e)
-        {
             focusScanner();
         }
 
-        // Centralized method to set focus to scanner input
+        // ==================== SCANNER HANDLING ====================
+        // Scanner typically sends the barcode text + Enter key
+        private void textBoxScanner_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar != (char)Keys.Enter) return;
+
+            string scannedCode = textBoxScanner.Text?.Trim();
+            if (string.IsNullOrEmpty(scannedCode))
+            {
+                focusScanner();
+                return;
+            }
+
+            try
+            {
+                ProcessScannerCode(scannedCode);
+            }
+            catch (Exception ex)
+            {
+                // Safe fallback: show error and keep app responsive
+                showTemporaryMessage(labelMessageError, $"ERROR PROCESANDO CÓDIGO: {ex.Message}", 3000);
+            }
+            finally
+            {
+                focusScanner();
+            }
+        }
+
+        // Shared logic extracted from previous duplicated code
+        private void ProcessScannerCode(string scannedCode)
+        {
+            int ticketId = _ticketsService.getIdByCodeBar(scannedCode);
+            _currentTicketId = ticketId;
+
+            var printData = _ticketsService.getPrintData(ticketId);
+            if (printData == null)
+            {
+                showTemporaryMessage(labelMessageError, "CODIGO NO ENCONTRADO", 3000);
+                ResetChargeUI();
+                return;
+            }
+
+            ProcessPrintData(printData, ticketId);
+        }
+
+        // Consolidated logic: used by scanner and by manual validate (buttonValidateOwner_Click)
+        private void ProcessPrintData(PrintData printData, int ticketId)
+        {
+            // verify vehicle registration (unless the type is Bike which uses owner id)
+            bool vehicleStateActive = _vehiclesService.isVehicleStateActive(printData.LicensePlate);
+
+            if (string.Equals(printData.CheckinState, CheckinsStateCode.facturado.ToString(), StringComparison.OrdinalIgnoreCase))
+            {
+                showTemporaryMessage(labelMessageError, "ESTE TICKET YA FUE FACTURADO", 3000);
+                ResetChargeUI();
+                return;
+            }
+
+            if (!vehicleStateActive && !string.Equals(printData.VehicleType, VehicleTypeCode.Bike.ToString(), StringComparison.OrdinalIgnoreCase))
+            {
+                showTemporaryMessage(labelMessageError, "EL VEHICULO NO ESTA REGISTRADO", 3000);
+                ResetChargeUI();
+                return;
+            }
+
+            // Show elapsed and cost based on checkin state
+            if (string.Equals(printData.CheckinState, CheckinsStateCode.abierto.ToString(), StringComparison.OrdinalIgnoreCase))
+            {
+                ShowChargeForOpen(printData);
+                return;
+            }
+
+            if (string.Equals(printData.CheckinState, CheckinsStateCode.vip.ToString(), StringComparison.OrdinalIgnoreCase))
+            {
+                // find bill by checkin id (ticket -> checkin -> bill)
+                int? checkinId = _ticketsService.getCheckinIdByTicketId(ticketId);
+                Bills billData = null;
+                if (checkinId.HasValue)
+                {
+                    billData = _billsService.getBillByCheckinId(checkinId.Value);
+                }
+
+                if (billData != null)
+                {
+                    ShowChargeForVIP(printData, billData);
+                }
+                else
+                {
+                    // fallback to generated cost if bill missing
+                    ShowChargeForOpen(printData);
+                }
+            }
+        }
+
+        // helper to show time and generated cost
+        private void ShowChargeForOpen(PrintData printData)
+        {
+            showElapsedTime(printData.MinutesElapsed);
+            showCost(printData.TotalPayGenerated.ToString());
+            showButtonGenerateInvoice();
+            showButtonInvoicePaid();
+        }
+
+        // helper to show time and stored bill amount for VIP
+        private void ShowChargeForVIP(PrintData printData, Bills billData)
+        {
+            showElapsedTime(printData.MinutesElapsed);
+            showCost(billData.Total_pay.ToString());
+            showButtonGenerateInvoice();
+            showButtonInvoicePaid();
+        }
+
+        // ==================== BUTTON VALIDATE VEHICLE (manual search) ====================
+        private void buttonValidateOwner_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                string input = textBox2.Text?.Trim();
+                if (string.IsNullOrEmpty(input))
+                {
+                    showTemporaryMessage(labelMessageError, "POR FAVOR, INGRESAR UNA IDENTIFICACION DE VEHICULO VALIDA", 3000);
+                    return;
+                }
+
+                int ticketId = input.All(char.IsDigit)
+                    ? _ticketsService.getIdByOwnerId(input)
+                    : _ticketsService.getIdByLicensePlate(input);
+
+                _currentTicketId = ticketId;
+                var printData = _ticketsService.getPrintData(ticketId);
+
+                if (printData == null)
+                {
+                    showTemporaryMessage(labelMessageError, "VEHICULO NO ENCONTRADO", 3000);
+                    ResetChargeUI();
+                    return;
+                }
+
+                ProcessPrintData(printData, ticketId);
+            }
+            catch (Exception ex)
+            {
+                showTemporaryMessage(labelMessageError, $"ERROR AL VALIDAR: {ex.Message}", 3000);
+            }
+            finally
+            {
+                focusScanner();
+            }
+        }
+
+        // ==================== FOCUS & UI UTILITIES ====================
+        private void buttonFocusScanner_Click(object sender, EventArgs e) => focusScanner();
+
         private void focusScanner()
         {
             try
             {
-                textBoxScanner.Clear();// clear the texbox
-
-                // Ensure control can take focus
-                if (textBoxScanner.CanFocus || textBoxScanner.TabStop == false)
-                {
+                textBoxScanner.Clear();
+                if (textBoxScanner.CanFocus || !textBoxScanner.TabStop)
                     textBoxScanner.Focus();
-                }
             }
             catch
             {
-                // swallow any unlikely focus exceptions - keep app resilient
+                // swallow - not critical
             }
         }
 
-        // ==================== UI EVENT HANDLERS (unchanged) ====================
-        private void flowLayoutPanel1_Paint(object sender, PaintEventArgs e) { }
-        private void menuStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e) { }
-        private void label1_Click(object sender, EventArgs e) { }
-        private void label3_Click(object sender, EventArgs e) { }
-        private void flowLayoutPanel2_Paint(object sender, PaintEventArgs e) { }
-        private void label1_Click_1(object sender, EventArgs e) { }
-        private void label4_Click(object sender, EventArgs e) { }
-        private void button1_Click(object sender, EventArgs e) { }
-        private void button2_Click(object sender, EventArgs e) { }
-        private void textBox2_TextChanged(object sender, EventArgs e) { }
-        private void label6_Click(object sender, EventArgs e) { }
-        private void tableLayoutPanel1_Paint(object sender, PaintEventArgs e) { }
-        private void label7_Click(object sender, EventArgs e) { }
-        private void labelMessageError_Click(object sender, EventArgs e) { }
-        private void labelElapsedValue_Click(object sender, EventArgs e) { }
-        private void textBoxCodeBarScanner_TextChanged(object sender, EventArgs e) { }
+        // Reset UI elements for charge/time/cost/buttons
+        private void ResetChargeUI()
+        {
+            hideElapsedTime();
+            hideCost();
+            hideButtonGenerateInvoice();
+            hideButtonInvoicePaid();
+        }
 
-
+        // ==================== BACKGROUND RENDERING (unchanged, optimized minor) ===
         private void TableLayoutPanel1_Paint(object sender, PaintEventArgs e)
         {
-            // Draw the cached image (if it exists)
             if (_bgCache != null)
             {
-                // If it’s already exactly the right size, draw without scaling for maximum speed
                 e.Graphics.CompositingQuality = CompositingQuality.HighSpeed;
                 e.Graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
                 e.Graphics.DrawImageUnscaled(_bgCache, 0, 0);
+                return;
             }
-            else
-            {
-                // Fallback: draw resource directly (not recommended for long-term performance)
-                var img = Properties.Resources.imagen_estadio;
-                if (img != null)
-                    e.Graphics.DrawImage(img, new Rectangle(0, 0, tableLayoutPanel1.Width, tableLayoutPanel1.Height));
-            }
+
+            var img = Properties.Resources.imagen_estadio;
+            if (img != null)
+                e.Graphics.DrawImage(img, new Rectangle(0, 0, tableLayoutPanel1.Width, tableLayoutPanel1.Height));
         }
 
-        // Don’t recalculate immediately on each resize: use a timer for "debounce"
         private void TableLayoutPanel1_Resize(object sender, EventArgs e)
         {
-            // Restart the timer: if the user keeps dragging, we don’t recalculate yet
             _resizeTimer.Stop();
             _resizeTimer.Start();
         }
@@ -347,50 +290,37 @@ namespace Parking
         {
             _resizeTimer.Stop();
             UpdateBackgroundBitmap();
-            tableLayoutPanel1.Invalidate(); // force quick repaint using the cached image
+            tableLayoutPanel1.Invalidate();
         }
 
         private void UpdateBackgroundBitmap()
         {
             var img = Properties.Resources.imagen_estadio;
             if (img == null) return;
-
             var w = tableLayoutPanel1.ClientSize.Width;
             var h = tableLayoutPanel1.ClientSize.Height;
-
             if (w <= 0 || h <= 0) return;
-
-            // If it already exists and has the right size, do nothing
             if (_bgCache != null && _bgCache.Width == w && _bgCache.Height == h) return;
 
-            // Release previous cache
             _bgCache?.Dispose();
-
-            // Create new scaled version (only once)
-            // Use reasonable scaling quality: HighQualityBicubic is good but a bit slower.
             var bmp = new Bitmap(w, h);
             using (var g = Graphics.FromImage(bmp))
             {
                 g.CompositingQuality = CompositingQuality.HighSpeed;
                 g.InterpolationMode = InterpolationMode.Low;
                 g.SmoothingMode = SmoothingMode.None;
-
-                // Draw the scaled image across the whole panel
                 g.DrawImage(img, new Rectangle(0, 0, w, h));
             }
-
             _bgCache = bmp;
         }
 
-        // Utility to enable double buffering in controls that don’t expose the property
+        // give non-public controls double-buffering
         private void SetDoubleBuffered(Control c, bool enabled)
         {
-            // Reflection because the property may be non-public
             PropertyInfo prop = typeof(Control).GetProperty("DoubleBuffered", BindingFlags.Instance | BindingFlags.NonPublic);
-            if (prop != null) prop.SetValue(c, enabled, null);
+            prop?.SetValue(c, enabled, null);
         }
 
-        // Release resources when closing the form
         protected override void OnFormClosed(FormClosedEventArgs e)
         {
             base.OnFormClosed(e);
@@ -398,97 +328,77 @@ namespace Parking
             _resizeTimer?.Dispose();
         }
 
-
+        // ==================== NAVIGATION & OTHER FORMS (unchanged) ====================
         private void ajsutesToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            FormSettings formSettings = new FormSettings();
-
-            // Reload parking data once the settings form is closed
+            var formSettings = new FormSettings();
             formSettings.FormClosed += (s, args) => loadParkingData();
-
             formSettings.ShowDialog();
-            focusScanner(); // return focus to scanner after closing the modal settings
+            focusScanner();
         }
 
         private void listaVehiculosToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            FormVehiculesHistory formVehiculesHistory = new FormVehiculesHistory();
-            // Ensure focus returns to scanner when the history form is closed
-            formVehiculesHistory.FormClosed += (s, args) => focusScanner();
-            formVehiculesHistory.Show();
+            var history = new FormVehiculesHistory();
+            history.FormClosed += (s, args) => focusScanner();
+            history.Show();
         }
 
-        // ==================== VEHICLE SELECTION ====================
+        // ==================== VEHICLE SELECTION UI ====================
         private void pictureBox1_Click(object sender, EventArgs e)
         {
-            setValueToLabel6("INGRESAR CARRO");
-            showLabel6();
-            ValueBoldToLabel6();
-            clearTextBox1();
-            setTexBox1MaxLength(6);
-            showTextBox1();
-            showButtonSaveVehicle();
-            carClickedStyle();
-            motorBikeDefaultStyle();
-            bikeDefaultStyle();
-            hideElementsVip();
-            currentTypeVehicle = VehicleTypeCode.Car;
+            SetVehicleInputUI("INGRESAR CARRO", 6, VehicleTypeCode.Car,
+                carClickedStyle, carDefaultStyle, motorBikeDefaultStyle, bikeDefaultStyle);
         }
 
         private void pictureBox2_Click(object sender, EventArgs e)
         {
-            setValueToLabel6("INGRESAR MOTO");
-            showLabel6();
-            ValueBoldToLabel6();
-            clearTextBox1();
-            setTexBox1MaxLength(6);
-            showTextBox1();
-            showButtonSaveVehicle();
-            motorBikeClickedStyle();
-            carDefaultStyle();
-            bikeDefaultStyle();
-            hideElementsVip();
-            currentTypeVehicle = VehicleTypeCode.Motorbike;
+            SetVehicleInputUI("INGRESAR MOTO", 6, VehicleTypeCode.Motorbike,
+                motorBikeClickedStyle, carDefaultStyle, bikeDefaultStyle, motorBikeDefaultStyle);
         }
 
         private void pictureBox3_Click(object sender, EventArgs e)
         {
-            setValueToLabel6("INGRESAR NUMERO DE IDENTIFICACION");
+            SetVehicleInputUI("INGRESAR NUMERO DE IDENTIFICACION", 10, VehicleTypeCode.Bike,
+                bikeClickedStyle, carDefaultStyle, motorBikeDefaultStyle, bikeDefaultStyle);
+        }
+
+        // small helper to set UI when selecting vehicle type
+        private void SetVehicleInputUI(string labelText, int maxLength, VehicleTypeCode type,
+            Action clickedStyle, Action defaultStyle1, Action defaultStyle2, Action defaultReset)
+        {
+            setValueToLabel6(labelText);
             showLabel6();
             ValueBoldToLabel6();
             clearTextBox1();
-            setTexBox1MaxLength(10);
+            setTexBox1MaxLength(maxLength);
             showTextBox1();
             showButtonSaveVehicle();
-            bikeClickedStyle();
-            carDefaultStyle();
-            motorBikeDefaultStyle();
+            clickedStyle?.Invoke();
+            defaultStyle1?.Invoke();
+            defaultStyle2?.Invoke();
             hideElementsVip();
-            currentTypeVehicle = VehicleTypeCode.Bike;
+            currentTypeVehicle = type;
         }
 
-        // ==================== VEHICLE INPUT ====================
+        // ==================== VEHICLE INPUT EVENTS ====================
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
-            VehiclesService _vehiclesService = new VehiclesService();
             bool vehicleWithMotor = _vehiclesService.hasTypeVehicleLicensePlate(currentTypeVehicle);
 
-            // If the vehicle has a motor (car/moto) convert to uppercase
             if (vehicleWithMotor)
             {
                 int selStart = textBox1.SelectionStart;
                 textBox1.Text = textBox1.Text.ToUpper();
-                textBox1.SelectionStart = selStart;
-
+                textBox1.SelectionStart = Math.Min(selStart, textBox1.Text.Length);
             }
 
-            // Enable/disable Save button depending on type
-            if (currentTypeVehicle == VehicleTypeCode.Bike) // Only bikes
+            if (currentTypeVehicle == VehicleTypeCode.Bike)
             {
                 bool allDigits = !string.IsNullOrEmpty(textBox1.Text) && textBox1.Text.All(char.IsDigit);
                 buttonSaveVehicle.Enabled = allDigits;
             }
-            else // Cars and motorbikes
+            else
             {
                 buttonSaveVehicle.Enabled = !string.IsNullOrWhiteSpace(textBox1.Text);
             }
@@ -496,167 +406,57 @@ namespace Parking
 
         private void textBox1KeyPress(object sender, KeyPressEventArgs e)
         {
-            if (currentTypeVehicle == VehicleTypeCode.Bike)
+            if (currentTypeVehicle != VehicleTypeCode.Bike) return;
+            string ownerId = textBox1.Text?.Trim();
+            if (!string.IsNullOrEmpty(ownerId) && !ownerId.All(char.IsDigit))
             {
-                string ownerId = textBox1.Text?.Trim();
-                if (!ownerId.All(char.IsDigit))
-                {
-                    showTemporaryMessage(labelMessageError, messageJustDigits, 3000);
-                    return;
-                }
+                showTemporaryMessage(labelMessageError, messageJustDigits, 3000);
             }
         }
 
-        // ==================== VEHICLE SAVE ====================
+        // ==================== VEHICLE SAVE (consolidated & validated) ====================
         private void buttonSaveVehicle_Click(object sender, EventArgs e)
         {
-            ParkingService _parkingService = new ParkingService();
-            VehiclesTypesService _vehiclesTypeService = new VehiclesTypesService();
-            VehiclesService _vehiclesService = new VehiclesService();
-
-            bool vehicleWithMotor = _vehiclesService.hasTypeVehicleLicensePlate(currentTypeVehicle);
-
-            string licensePlate = vehicleWithMotor ? valueToSaveUsingVehicleWithMotor(true) : null;
-            string ownerId = !vehicleWithMotor ? valueToSaveUsingVehicleWithoutMotor(false) : null;
-
-            // === Validations ===
-            if (vehicleWithMotor && string.IsNullOrWhiteSpace(licensePlate))
+            try
             {
-                showTemporaryMessage(labelMessageError, messageLicensePlateEmpty, 3000);
-                return;
+                SaveVehicleFlow(isVip: false);
             }
-
-            if (!vehicleWithMotor && string.IsNullOrWhiteSpace(ownerId))
+            catch (Exception ex)
             {
-                showTemporaryMessage(labelMessageError, messageOwnerIdEmpty, 3000);
-                return;
+                showTemporaryMessage(labelMessageError, $"ERROR AL REGISTRAR: {ex.Message}", 3000);
             }
-
-            if (vehicleWithMotor && !_vehiclesService.isTextBoxLengthValid(textBox1, 6))
+            finally
             {
-                showTemporaryMessage(labelMessageError, "LA PLACA DEBE TENER AL MENOS 6 CARACTERES", 3000);
-                return;
+                focusScanner();
             }
-
-            if (currentTypeVehicle.Equals(VehicleTypeCode.Motorbike))
-            {
-                string platePattern = @"^[A-Z]{3}[0-9]{2}[A-Z]{1}$";
-                if (!System.Text.RegularExpressions.Regex.IsMatch(licensePlate ?? "", platePattern))
-                {
-                    showTemporaryMessage(labelMessageError,
-                        "FORMATO DE PLACA TIPO MOTO INVÁLIDO. EJEMPLO VÁLIDO: ABC12D", 4000);
-                    return;
-                }
-
-            }
-
-            if (currentTypeVehicle.Equals(VehicleTypeCode.Car))
-            {
-                string platePattern = @"^[A-Z]{3}[0-9]{3}$";
-                if (!System.Text.RegularExpressions.Regex.IsMatch(licensePlate ?? "", platePattern))
-                {
-                    showTemporaryMessage(labelMessageError,
-                        "FORMATO DE PLACA TIPO CARRO INVÁLIDO. EJEMPLO VÁLIDO: ABC123", 4000);
-                    return;
-                }
-
-            }
-
-            // === Main Flow ===
-            Vehicles existingVehicle = null;
-            if (vehicleWithMotor && _vehiclesService.validateLicensePlateExist(licensePlate))
-            {
-                existingVehicle = _vehiclesService.getByLicensePlate(licensePlate);
-            }
-            else if (!vehicleWithMotor && _vehiclesService.validateOwnerExist(ownerId))
-            {
-                existingVehicle = _vehiclesService.getByOwnerId(ownerId);
-            }
-
-            if (existingVehicle == null)
-            {
-                // Crear vehículo nuevo
-                Vehicles _vehicle = new Vehicles
-                {
-                    Type_id = _vehiclesTypeService.GetId(currentTypeVehicle),
-                    License_plate = licensePlate,
-                    Owner_id = ownerId,
-                    State = VehicleStateCode.activo.ToString()
-                };
-
-                Checkins _checkin = new Checkins
-                {
-                    EntryTime = DateTime.Now,
-                    State = CheckinsStateCode.abierto.ToString(),
-                };
-
-                Tickets _ticket = new Tickets
-                {
-                    Parking_id = 1,
-                    Codebar = BarcodeHelper.GenerateUniqueCodebar(),
-                    Release_date = DateTime.Now
-                };
-
-                _parkingService.RegisterVehicleCheckin(_vehicle, _checkin, _ticket);
-            }
-            else
-            {
-                // Validar que no esté inactivo
-                if (existingVehicle.State == VehicleStateCode.activo.ToString())
-                {
-                    showTemporaryMessage(labelMessageError, "ESTE VEHICULO YA SE ENCUENTRA REGISTRADO", 3000);
-                    return;
-                }
-
-                // Validar que la placa sea unica
-                if (existingVehicle.Type_id != _vehiclesTypeService.GetId(currentTypeVehicle))
-                {
-                    showTemporaryMessage(labelMessageError, "ESTE VEHICULO ESTA ALMACENADO EN EL SISTEMA CON UN TIPO DIFERENTE AL SELECCIONADO", 3000);
-                    return;
-                }
-
-                // Crear solo checkin + ticket
-                Checkins _checkin = new Checkins
-                {
-                    EntryTime = DateTime.Now,
-                    State = CheckinsStateCode.abierto.ToString(),
-                };
-
-                Tickets _ticket = new Tickets
-                {
-                    Parking_id = 1,
-                    Codebar = BarcodeHelper.GenerateUniqueCodebar(),
-                    Release_date = DateTime.Now
-                };
-
-                Console.WriteLine(existingVehicle.License_plate);
-                
-
-                _parkingService.RegisterCheckin(existingVehicle.Id, _checkin, _ticket);
-
-                changeVehicleStateToActive(existingVehicle.License_plate);
-            }
-
-            // === Mensaje y acciones finales ===
-            showTemporarySuccesMessage(labelMessageError, messageVehicleSuccesfullyRegistered, 3000);
-            printTicket();
-            focusScanner();
         }
 
-
-        // ==================== SAVE VEHICLE VIP ====================
+        // Save vehicle for VIP button
         private void guardarVIP_Click(object sender, EventArgs e)
         {
-            ParkingService _parkingService = new ParkingService();
-            VehiclesTypesService _vehiclesTypeService = new VehiclesTypesService();
-            VehiclesService _vehiclesService = new VehiclesService();
+            try
+            {
+                SaveVehicleFlow(isVip: true);
+            }
+            catch (Exception ex)
+            {
+                showTemporaryMessage(labelMessageError, $"ERROR VIP: {ex.Message}", 3000);
+            }
+            finally
+            {
+                focusScanner();
+            }
+        }
 
+        // Unified save logic for normal and VIP checkins
+        private void SaveVehicleFlow(bool isVip)
+        {
             bool vehicleWithMotor = _vehiclesService.hasTypeVehicleLicensePlate(currentTypeVehicle);
 
             string licensePlate = vehicleWithMotor ? valueToSaveUsingVehicleWithMotor(true) : null;
             string ownerId = !vehicleWithMotor ? valueToSaveUsingVehicleWithoutMotor(false) : null;
 
-            // === Validations ===
+            // Basic validations
             if (vehicleWithMotor && string.IsNullOrWhiteSpace(licensePlate))
             {
                 showTemporaryMessage(labelMessageError, messageLicensePlateEmpty, 3000);
@@ -675,198 +475,232 @@ namespace Parking
                 return;
             }
 
-            if (currentTypeVehicle.Equals(VehicleTypeCode.Motorbike))
+            // Specific plate format validations (enum usage)
+            if (currentTypeVehicle == VehicleTypeCode.Motorbike)
             {
                 string platePattern = @"^[A-Z]{3}[0-9]{2}[A-Z]{1}$";
-                if (!System.Text.RegularExpressions.Regex.IsMatch(licensePlate ?? "", platePattern))
+                string normalized = (licensePlate ?? "").ToUpper();
+                if (!System.Text.RegularExpressions.Regex.IsMatch(normalized, platePattern))
                 {
-                    showTemporaryMessage(labelMessageError,
-                        "FORMATO DE PLACA TIPO MOTO INVÁLIDO. EJEMPLO VÁLIDO: ABC12D", 4000);
+                    showTemporaryMessage(labelMessageError, "FORMATO DE PLACA TIPO MOTO INVÁLIDO. EJEMPLO: ABC12D", 4000);
                     return;
                 }
+                licensePlate = normalized;
+                textBox1.Text = normalized; // enforce uppercase in UI
             }
 
+            if (currentTypeVehicle == VehicleTypeCode.Car)
+            {
+                string platePattern = @"^[A-Z]{3}[0-9]{3}$";
+                string normalized = (licensePlate ?? "").ToUpper();
+                if (!System.Text.RegularExpressions.Regex.IsMatch(normalized, platePattern))
+                {
+                    showTemporaryMessage(labelMessageError, "FORMATO DE PLACA TIPO CARRO INVÁLIDO. EJEMPLO: ABC123", 4000);
+                    return;
+                }
+                licensePlate = normalized;
+                textBox1.Text = normalized;
+            }
 
-            // === Main Flow ===
+            // Detect existing vehicle
             Vehicles existingVehicle = null;
             if (vehicleWithMotor && _vehiclesService.validateLicensePlateExist(licensePlate))
-            {
                 existingVehicle = _vehiclesService.getByLicensePlate(licensePlate);
-            }
             else if (!vehicleWithMotor && _vehiclesService.validateOwnerExist(ownerId))
-            {
                 existingVehicle = _vehiclesService.getByOwnerId(ownerId);
-            }
 
             if (existingVehicle == null)
             {
-                // Crear vehículo nuevo
-                Vehicles _vehicle = new Vehicles
+                // Create new vehicle + checkin (+bill if VIP)
+                var newVehicle = new Vehicles
                 {
-                    Type_id = _vehiclesTypeService.GetId(currentTypeVehicle),
+                    Type_id = _vehicleTypesService.GetId(currentTypeVehicle),
                     License_plate = licensePlate,
                     Owner_id = ownerId,
                     State = VehicleStateCode.activo.ToString()
                 };
 
-                Checkins _checkin = new Checkins
+                var checkin = new Checkins
                 {
                     EntryTime = DateTime.Now,
-                    State = CheckinsStateCode.vip.ToString(),
+                    State = isVip ? CheckinsStateCode.vip.ToString() : CheckinsStateCode.abierto.ToString()
                 };
 
-                Tickets _ticket = new Tickets
+                var ticket = new Tickets
                 {
                     Parking_id = 1,
                     Codebar = BarcodeHelper.GenerateUniqueCodebar(),
                     Release_date = DateTime.Now
                 };
 
-                Bills _bill = new Bills
+                if (isVip)
                 {
-                    Parking_id = 1,
-                    Total_pay = int.Parse(textBoxSpecialFee.Text),
-                    Checkin_Time = DateTime.Now
-                };
+                    var bill = new Bills
+                    {
+                        Parking_id = 1,
+                        Total_pay = int.TryParse(textBoxSpecialFee.Text, out var fee) ? fee : 0,
+                        Checkin_Time = DateTime.Now
+                    };
 
-                _parkingService.RegisterVehicleCheckinWithBill(_vehicle, _checkin, _ticket, _bill);
+                    _parking_service_register_vehicle_with_bill(newVehicle, checkin, ticket, bill);
+                }
+                else
+                {
+                    _parking_service_register_vehicle_checkin(newVehicle, checkin, ticket);
+                }
             }
             else
             {
-                // Validar que no esté inactivo
+                // existing vehicle flows
                 if (existingVehicle.State == VehicleStateCode.activo.ToString())
                 {
                     showTemporaryMessage(labelMessageError, "ESTE VEHICULO YA SE ENCUENTRA REGISTRADO", 3000);
                     return;
                 }
 
-                // Validar que la placa sea unica
-                if (existingVehicle.Type_id != _vehiclesTypeService.GetId(currentTypeVehicle))
+                if (existingVehicle.Type_id != _vehicleTypesService.GetId(currentTypeVehicle))
                 {
                     showTemporaryMessage(labelMessageError, "ESTE VEHICULO ESTA ALMACENADO EN EL SISTEMA CON UN TIPO DIFERENTE AL SELECCIONADO", 3000);
                     return;
                 }
 
-                // Crear solo checkin + ticket
-                Checkins _checkin = new Checkins
+                var checkin = new Checkins
                 {
                     EntryTime = DateTime.Now,
-                    State = CheckinsStateCode.vip.ToString(),
+                    State = isVip ? CheckinsStateCode.vip.ToString() : CheckinsStateCode.abierto.ToString()
                 };
 
-                Tickets _ticket = new Tickets
+                var ticket = new Tickets
                 {
                     Parking_id = 1,
                     Codebar = BarcodeHelper.GenerateUniqueCodebar(),
                     Release_date = DateTime.Now
                 };
 
-                Bills _bill = new Bills
+                if (isVip)
                 {
-                    Parking_id = 1,
-                    Total_pay = int.Parse(textBoxSpecialFee.Text),
-                    Checkin_Time = DateTime.Now
-                };
+                    var bill = new Bills
+                    {
+                        Parking_id = 1,
+                        Total_pay = int.TryParse(textBoxSpecialFee.Text, out var fee) ? fee : 0,
+                        Checkin_Time = DateTime.Now
+                    };
 
-                Console.WriteLine(existingVehicle.License_plate);
-
-
-                _parkingService.RegisterCheckinWithBill(existingVehicle.Id, _checkin, _ticket, _bill);
-
-                changeVehicleStateToActive(existingVehicle.License_plate);
+                    _parking_service_register_checkin_with_bill(existingVehicle.Id, checkin, ticket, bill);
+                }
+                else
+                {
+                    _parking_service_register_checkin(existingVehicle.Id, checkin, ticket);
+                    changeVehicleStateToActive(existingVehicle.License_plate);
+                }
             }
 
-            // === Mensaje y acciones finales ===
+            // success & follow-up
             showTemporarySuccesMessage(labelMessageError, messageVehicleSuccesfullyRegistered, 3000);
             printTicket();
-            focusScanner();
         }
 
+        // small wrappers to avoid repeating service method names inline (keeps single responsibility)
+        private void _parking_service_register_vehicle_checkin(Vehicles vehicle, Checkins checkin, Tickets ticket)
+            => _parkingService.RegisterVehicleCheckin(vehicle, checkin, ticket);
 
+        private void _parking_service_register_checkin(int vehicleId, Checkins checkin, Tickets ticket)
+            => _parkingService.RegisterCheckin(vehicleId, checkin, ticket);
 
+        private void _parking_service_register_vehicle_with_bill(Vehicles vehicle, Checkins checkin, Tickets ticket, Bills bill)
+            => _parkingService.RegisterVehicleCheckinWithBill(vehicle, checkin, ticket, bill);
 
-        // ==================== SAVE AND GENERATE BILL ====================
+        private void _parking_service_register_checkin_with_bill(int vehicleId, Checkins checkin, Tickets ticket, Bills bill)
+            => _parkingService.RegisterCheckinWithBill(vehicleId, checkin, ticket, bill);
 
+        // ==================== BILLING ====================
         private void buttonGenerateBill_Click(object sender, EventArgs e)
         {
-            insertBill();
-
-            hideElapsedTime();
-            hideCost();
-            hideButtonGenerateInvoice();
-            hideButtonInvoicePaid();
-
-            printBill(true);
-
+            try
+            {
+                insertBill();
+                ResetChargeUI();
+                printBill(true);
+            }
+            catch (Exception ex)
+            {
+                showTemporaryMessage(labelMessageError, $"ERROR AL GENERAR FACTURA: {ex.Message}", 3000);
+            }
+            finally
+            {
+                focusScanner();
+            }
         }
 
         private void buttonPayed_Click(object sender, EventArgs e)
         {
-            insertBill();
-
-            hideElapsedTime();
-            hideCost();
-            hideButtonGenerateInvoice();
-            hideButtonInvoicePaid();
-
-            printBill(false);
+            try
+            {
+                insertBill();
+                ResetChargeUI();
+                printBill(false);
+            }
+            catch (Exception ex)
+            {
+                showTemporaryMessage(labelMessageError, $"ERROR AL MARCAR COMO PAGADO: {ex.Message}", 3000);
+            }
+            finally
+            {
+                focusScanner();
+            }
         }
 
         private void insertBill()
         {
-            ParkingService _parkingService = new ParkingService();
-            TicketsService _ticketService = new TicketsService();
-            BillsService _billService = new BillsService();
+            var printData = _ticketsService.getPrintData(_currentTicketId);
+            if (printData == null) throw new InvalidOperationException("No hay datos de impresión para el ticket actual.");
 
-            PrintData _printData = _ticketService.getPrintData(_currentTicketId);
+            string licensePlate = printData.VehicleInfo;
 
-            String licensePlate = _printData.VehicleInfo;
-
-            if (_printData.CheckinState.Equals(CheckinsStateCode.vip))
+            if (string.Equals(printData.CheckinState, CheckinsStateCode.vip.ToString(), StringComparison.OrdinalIgnoreCase))
             {
-                
-               Bills old_bill = _billService.getBillByCheckinId(_ticketService.getCheckinIdByTicketId(_currentTicketId));
+                int? checkinId = _ticketsService.getCheckinIdByTicketId(_currentTicketId);
+                if (!checkinId.HasValue) throw new InvalidOperationException("No existe checkin asociado al ticket VIP.");
 
-                Bills bills = new Bills
+                Bills oldBill = _billsService.getBillByCheckinId(checkinId.Value);
+                if (oldBill == null) throw new InvalidOperationException("No existe factura previa para este checkin VIP.");
+
+                var updated = new Bills
                 {
-                    Id = old_bill.Id,
-                    Checkin_id = old_bill.Checkin_id,
-                    Parking_id = old_bill.Parking_id,
-                    Total_pay = old_bill.Total_pay,
-                    Release_date = convertElapsedValueToTotalMinutes(_printData.EntryTime),
-                    Checkin_Time = old_bill.Checkin_Time
+                    Id = oldBill.Id,
+                    Checkin_id = oldBill.Checkin_id,
+                    Parking_id = oldBill.Parking_id,
+                    Total_pay = oldBill.Total_pay,
+                    Release_date = convertElapsedValueToTotalMinutes(printData.EntryTime),
+                    Checkin_Time = oldBill.Checkin_Time
                 };
 
-                _billService.updateBill(bills);
+                _billsService.updateBill(updated);
             }
             else
             {
-                Bills bills = new Bills
+                var newBill = new Bills
                 {
-                    Checkin_id = _printData.CheckinId,
+                    Checkin_id = printData.CheckinId,
                     Parking_id = 1,
-                    Total_pay = int.Parse(labelCostValue.Text),
-                    Release_date = convertElapsedValueToTotalMinutes(_printData.EntryTime),
-                    Checkin_Time = _printData.EntryTime
+                    Total_pay = int.TryParse(labelCostValue.Text, out var total) ? total : 0,
+                    Release_date = convertElapsedValueToTotalMinutes(printData.EntryTime),
+                    Checkin_Time = printData.EntryTime
                 };
 
-                _billService.createBill(bills);
+                _billsService.createBill(newBill);
             }
-            
 
-            changeCheckinStateToFacturado(_printData.CheckinId);
+            changeCheckinStateToFacturado(printData.CheckinId);
             changeVehicleStateToInactive(licensePlate);
-            
         }
 
-
-
-        // ==================== UI HELPERS ====================
+        // ==================== UI SHOW/HIDE HELPERS (kept names to preserve designer references) ===
         private void showTextBox1() => textBox1.Visible = true;
         private void showButtonSaveVehicle() => buttonSaveVehicle.Visible = true;
         private void setTexBox1MaxLength(int limit) => textBox1.MaxLength = limit;
         private void clearTextBox1() => textBox1.Clear();
-        private void setValueToLabel6(String txt) => label6.Text = txt;
+        private void setValueToLabel6(string txt) => label6.Text = txt;
         private void ValueBoldToLabel6() => label6.Font = new Font(label6.Font, FontStyle.Bold);
         private void showLabel6() => label6.Visible = true;
 
@@ -912,120 +746,118 @@ namespace Parking
             pictureBox3.BackColor = Color.Transparent;
         }
 
-        private void FormHome_Load(object sender, EventArgs e)
-        {
-
-        }
+        private void FormHome_Load(object sender, EventArgs e) { }
 
         private void loadParkingData()
         {
-            InfoParkingService _infoParkingService = new InfoParkingService();
-            List<InfoParking> data = _infoParkingService.getAllInfoParking();
-            labelTitleParking.Text = data[0].Name_parking;
+            try
+            {
+                var data = _infoParkingService.getAllInfoParking();
+                if (data != null && data.Count > 0)
+                    labelTitleParking.Text = data[0].Name_parking;
+            }
+            catch
+            {
+                // ignore errors loading settings; UI will remain functional
+            }
         }
 
         private void printTicket()
         {
-            TicketsService _ticketService = new TicketsService();
-            int ticketId = _ticketService.getLastIndex();
-            PrintData _printData = _ticketService.getPrintData(ticketId);
-
-            if (_printData != null)
+            try
             {
-                PrintHelper.printTicket(_printData);
-                showTemporarySuccesMessage(labelMessageError, "IMPRIMIENDO TICKET", 3000);
+                int ticketId = _ticketsService.getLastIndex();
+                var printData = _ticketsService.getPrintData(ticketId);
+                if (printData != null)
+                {
+                    PrintHelper.printTicket(printData);
+                    showTemporarySuccesMessage(labelMessageError, "IMPRIMIENDO TICKET", 3000);
+                }
+                else
+                {
+                    showTemporaryMessage(labelMessageError, "ALGO FUE MAL AL GENERAR EL TICKET", 300);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                showTemporaryMessage(labelMessageError, "ALGO FUE MAL AL GENERAR EL TICKET", 300);
+                showTemporaryMessage(labelMessageError, $"ERROR IMPRESIÓN: {ex.Message}", 3000);
             }
         }
 
         private void printBill(bool shouldPrint)
         {
-            BillsService _billService = new BillsService();
-            int billId = _billService.getLastIndex();
-            PrintData _printData = _billService.getPrintData(billId);
-
-            if (_printData != null)
+            try
             {
-                if (shouldPrint)
+                int billId = _billsService.getLastIndex();
+                var printData = _billsService.getPrintData(billId);
+                if (printData != null)
                 {
-                    PrintHelper.printInvoice(_printData);
-                    showTemporarySuccesMessage(labelMessageError, "IMPRIMIENDO FACTURA", 3000);
+                    if (shouldPrint)
+                    {
+                        PrintHelper.printInvoice(printData);
+                        showTemporarySuccesMessage(labelMessageError, "IMPRIMIENDO FACTURA", 3000);
+                    }
+                    else
+                    {
+                        showTemporarySuccesMessage(labelMessageError, "FACTURADO", 3000);
+                    }
                 }
                 else
                 {
-                    showTemporarySuccesMessage(labelMessageError, "FACTURADO", 3000);
+                    showTemporaryMessage(labelMessageError, "ALGO FUE MAL AL GENERAR LA FACTURA", 300);
                 }
             }
-            else
+            catch (Exception ex)
             {
-                showTemporaryMessage(labelMessageError, "ALGO FUE MAL AL GENERAR LA FACTURA", 300);
+                showTemporaryMessage(labelMessageError, $"ERROR IMPRESIÓN: {ex.Message}", 3000);
             }
         }
 
-        private String valueToSaveUsingVehicleWithMotor(bool vehicleWithMotor)
-        {
-            if (!vehicleWithMotor) return null;
-            string text = textBox1.Text;
-            return string.IsNullOrWhiteSpace(text) ? null : text;
-        }
+        // helpers used earlier
+        private string valueToSaveUsingVehicleWithMotor(bool vehicleWithMotor)
+            => !vehicleWithMotor ? null : (string.IsNullOrWhiteSpace(textBox1.Text) ? null : textBox1.Text);
 
-        private String valueToSaveUsingVehicleWithoutMotor(bool vehicleWithMotor)
-        {
-            if (vehicleWithMotor) return null;
-            string text = textBox1.Text;
-            return string.IsNullOrWhiteSpace(text) ? null : text;
-        }
+        private string valueToSaveUsingVehicleWithoutMotor(bool vehicleWithMotor)
+            => vehicleWithMotor ? null : (string.IsNullOrWhiteSpace(textBox1.Text) ? null : textBox1.Text);
 
-        private async void showTemporaryMessage(Label label, String message, int millisencods)
+        // async UI message helpers (kept behavior but centralized)
+        private async void showTemporaryMessage(Label label, string message, int milliseconds)
         {
             label.Text = message;
             label.Visible = true;
             label.ForeColor = Color.Red;
             label.BackColor = Color.Black;
-            await Task.Delay(millisencods);
+            await Task.Delay(milliseconds);
             label.Visible = false;
         }
 
-        private async void showTemporarySuccesMessage(Label label, String message, int millisencods)
+        private async void showTemporarySuccesMessage(Label label, string message, int milliseconds)
         {
             label.Text = message;
             label.Visible = true;
             label.ForeColor = Color.Blue;
             label.BackColor = Color.White;
-            await Task.Delay(millisencods);
+            await Task.Delay(milliseconds);
             label.Visible = false;
         }
 
-        private void showElapsedTime(int value)
+        private void showElapsedTime(int minutes)
         {
             label4.Visible = true;
             labelElapsedValue.Visible = true;
-            labelElapsedValue.Text = $"{value / 60}h {value % 60}m" ;
+            labelElapsedValue.Text = $"{minutes / 60}h {minutes % 60}m";
         }
 
-        private void showCost(String value)
+        private void showCost(string value)
         {
             label7.Visible = true;
             labelCostValue.Visible = true;
             labelCostValue.Text = value;
         }
 
-        private void showButtonGenerateInvoice()
-        {
-            buttonGenerateBill.Visible = true;
-        }
-        private void showButtonInvoicePaid()
-        {
-            buttonPayed.Visible = true;
-        }
-
-        private void hideButtonSaveVehicle()
-        {
-            buttonSaveVehicle.Visible = false ;
-        }
+        private void showButtonGenerateInvoice() => buttonGenerateBill.Visible = true;
+        private void showButtonInvoicePaid() => buttonPayed.Visible = true;
+        private void hideButtonSaveVehicle() => buttonSaveVehicle.Visible = false;
 
         private void showVipElements()
         {
@@ -1033,7 +865,7 @@ namespace Parking
             textBoxSpecialFee.Visible = true;
             guardarVIP.Visible = true;
 
-            tableLayoutPanel1.SetRow(labelTextSpecialFee,12);
+            tableLayoutPanel1.SetRow(labelTextSpecialFee, 12);
             tableLayoutPanel1.SetColumn(labelTextSpecialFee, 11);
 
             tableLayoutPanel1.SetRow(textBoxSpecialFee, 12);
@@ -1064,83 +896,47 @@ namespace Parking
             labelCostValue.Text = "0";
         }
 
-        private void hideButtonGenerateInvoice()
-        {
-            buttonGenerateBill.Visible = false;
-        }
-        private void hideButtonInvoicePaid()
-        {
-            buttonPayed.Visible = false;
-        }
+        private void hideButtonGenerateInvoice() => buttonGenerateBill.Visible = false;
+        private void hideButtonInvoicePaid() => buttonPayed.Visible = false;
 
+        // Keep scanner TextBox hidden but receiving input
         private void hideTextBoxScanner()
         {
-            textBoxScanner.Size = new Size(1, 1);                 // very small
-            textBoxScanner.Location = new Point(-100, -100);      // outside the form
-            textBoxScanner.TabStop = false;                       // not included in Tab navigation
-            textBoxScanner.BorderStyle = BorderStyle.None;        // no borders
-            textBoxScanner.KeyPress += textBoxScanner_KeyPress;   // attach scanner event
+            textBoxScanner.Size = new Size(1, 1);
+            textBoxScanner.Location = new Point(-100, -100);
+            textBoxScanner.TabStop = false;
+            textBoxScanner.BorderStyle = BorderStyle.None;
+            textBoxScanner.KeyPress += textBoxScanner_KeyPress;
         }
 
-        private void textBoxScanner_GotFocus(object sender, EventArgs e)
+        private void textBoxScanner_GotFocus(object sender, EventArgs e) => HideCaret(textBoxScanner.Handle);
+        private void textBoxScanner_TextChanged(object sender, EventArgs e) => HideCaret(textBoxScanner.Handle);
+
+        private void changeVehicleStateToInactive(string licensePlate)
         {
-            HideCaret(textBoxScanner.Handle);
+            var v = new Vehicles { License_plate = licensePlate, State = VehicleStateCode.inactivo.ToString() };
+            _vehiclesService.setVehicleState(v);
         }
 
-        private void textBoxScanner_TextChanged(object sender, EventArgs e)
+        private void changeVehicleStateToActive(string licensePlate)
         {
-            HideCaret(textBoxScanner.Handle);
-        }
-
-        private void changeVehicleStateToInactive(String licensePlate)
-        {
-            VehiclesService _vehiclesService = new VehiclesService();
-
-            Vehicles _vehicles = new Vehicles
-            {
-                License_plate = licensePlate,
-                State = VehicleStateCode.inactivo.ToString()
-            };
-
-            _vehiclesService.setVehicleState(_vehicles);
-        }
-
-        private void changeVehicleStateToActive(String licensePlate)
-        {
-            VehiclesService _vehiclesService = new VehiclesService();
-
-            Vehicles _vehicles = new Vehicles
-            {
-                License_plate = licensePlate,
-                State = VehicleStateCode.activo.ToString()
-            };
-
-            _vehiclesService.setVehicleStateWhatever(_vehicles);
+            var v = new Vehicles { License_plate = licensePlate, State = VehicleStateCode.activo.ToString() };
+            _vehiclesService.setVehicleStateWhatever(v);
         }
 
         private void changeCheckinStateToFacturado(int checkinId)
         {
-            CheckinsService _checkinService = new CheckinsService();
-
-            Checkins _chekin = new Checkins
-            {
-                Id = checkinId,
-                State = CheckinsStateCode.facturado.ToString()
-            };
-
-            _checkinService.setCheckinState(_chekin);
+            var c = new Checkins { Id = checkinId, State = CheckinsStateCode.facturado.ToString() };
+            var svc = new CheckinsService();
+            svc.setCheckinState(c);
         }
 
         private DateTime convertElapsedValueToTotalMinutes(DateTime entryTime)
         {
-            String elapsedText = labelElapsedValue.Text;
-
-            //Split by 'h' and 'm'
+            string elapsedText = labelElapsedValue.Text;
             int hours = int.Parse(elapsedText.Split('h')[0].Trim());
             int minutes = int.Parse(elapsedText.Split('h')[1].Replace("m", "").Trim());
-
             int totalMinutes = (hours * 60) + minutes;
-
             return entryTime.AddMinutes(totalMinutes);
         }
 
@@ -1148,25 +944,34 @@ namespace Parking
         {
             int selStart = textBox2.SelectionStart;
             textBox2.Text = textBox2.Text.ToUpper();
-            textBox2.SelectionStart = selStart;
-        }
-        
-
-        
-        private void buttonFocuScanner_Click(object sender, EventArgs e)
-        {
-
+            textBox2.SelectionStart = Math.Min(selStart, textBox2.Text.Length);
         }
 
-        private void textBoxScanner_TextChanged_1(object sender, EventArgs e)
-        {
-
-        }
+        private void buttonFocuScanner_Click(object sender, EventArgs e) { /* reserved for UI */ }
+        private void textBoxScanner_TextChanged_1(object sender, EventArgs e) { /* reserved for UI */ }
 
         private void buttonVIP_Click(object sender, EventArgs e)
         {
             showVipElements();
             hideButtonSaveVehicle();
         }
+
+        // Unused designer event stubs kept for compatibility
+        private void flowLayoutPanel1_Paint(object sender, PaintEventArgs e) { }
+        private void menuStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e) { }
+        private void label1_Click(object sender, EventArgs e) { }
+        private void label3_Click(object sender, EventArgs e) { }
+        private void flowLayoutPanel2_Paint(object sender, PaintEventArgs e) { }
+        private void label1_Click_1(object sender, EventArgs e) { }
+        private void label4_Click(object sender, EventArgs e) { }
+        private void button1_Click(object sender, EventArgs e) { }
+        private void button2_Click(object sender, EventArgs e) { }
+        private void textBox2_TextChanged(object sender, EventArgs e) { }
+        private void label6_Click(object sender, EventArgs e) { }
+        private void tableLayoutPanel1_Paint(object sender, EventArgs e) { }
+        private void label7_Click(object sender, EventArgs e) { }
+        private void labelMessageError_Click(object sender, EventArgs e) { }
+        private void labelElapsedValue_Click(object sender, EventArgs e) { }
+        private void textBoxCodeBarScanner_TextChanged(object sender, EventArgs e) { }
     }
 }

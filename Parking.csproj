@@ -168,6 +168,7 @@
     <Compile Include="Services\CheckinsService.cs" />
     <Compile Include="Services\InfoParkingService.cs" />
     <Compile Include="Services\ParkingService.cs" />
+    <Compile Include="Services\ServicesProvider.cs" />
     <Compile Include="Services\TicketsService.cs" />
     <Compile Include="Services\VehiclesService.cs" />
     <Compile Include="Services\VehiclesTypesService.cs" />
