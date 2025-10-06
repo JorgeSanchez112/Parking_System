@@ -512,7 +512,7 @@ namespace Parking
             if (existingVehicle == null)
             {
                 // Create new vehicle + checkin (+bill if VIP)
-                var newVehicle = new Vehicles
+                Vehicles newVehicle = new Vehicles
                 {
                     Type_id = _vehicleTypesService.GetId(currentTypeVehicle),
                     License_plate = licensePlate,
@@ -520,13 +520,13 @@ namespace Parking
                     State = VehicleStateCode.activo.ToString()
                 };
 
-                var checkin = new Checkins
+                Checkins checkin = new Checkins
                 {
                     EntryTime = DateTime.Now,
                     State = isVip ? CheckinsStateCode.vip.ToString() : CheckinsStateCode.abierto.ToString()
                 };
 
-                var ticket = new Tickets
+                Tickets ticket = new Tickets
                 {
                     Parking_id = 1,
                     Codebar = BarcodeHelper.GenerateUniqueCodebar(),
@@ -535,7 +535,7 @@ namespace Parking
 
                 if (isVip)
                 {
-                    var bill = new Bills
+                    Bills bill = new Bills
                     {
                         Parking_id = 1,
                         Total_pay = int.TryParse(textBoxSpecialFee.Text, out var fee) ? fee : 0,
@@ -564,13 +564,13 @@ namespace Parking
                     return;
                 }
 
-                var checkin = new Checkins
+                Checkins checkin = new Checkins
                 {
                     EntryTime = DateTime.Now,
                     State = isVip ? CheckinsStateCode.vip.ToString() : CheckinsStateCode.abierto.ToString()
                 };
 
-                var ticket = new Tickets
+                Tickets ticket = new Tickets
                 {
                     Parking_id = 1,
                     Codebar = BarcodeHelper.GenerateUniqueCodebar(),
@@ -579,7 +579,7 @@ namespace Parking
 
                 if (isVip)
                 {
-                    var bill = new Bills
+                    Bills bill = new Bills
                     {
                         Parking_id = 1,
                         Total_pay = int.TryParse(textBoxSpecialFee.Text, out var fee) ? fee : 0,
@@ -587,6 +587,7 @@ namespace Parking
                     };
 
                     _parking_service_register_checkin_with_bill(existingVehicle.Id, checkin, ticket, bill);
+                    changeVehicleStateToActive(existingVehicle.License_plate);
                 }
                 else
                 {

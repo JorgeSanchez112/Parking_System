@@ -43,7 +43,7 @@ namespace Parking.Data
                 cmd.Parameters.AddWithValue("@parking_id", bills.Parking_id);
                 cmd.Parameters.AddWithValue("@total_pay", bills.Total_pay);
                 cmd.Parameters.AddWithValue("@release_date", bills.Release_date);
-                cmd.Parameters.AddWithValue("@Checkin_time", bills.Checkin_Time);
+                cmd.Parameters.AddWithValue("@checkin_time", bills.Checkin_Time);
 
 
                 cmd.ExecuteNonQuery();

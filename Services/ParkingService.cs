@@ -158,6 +158,7 @@ namespace Parking.Services
                         ticketsRepo.insert(con, tran, tickets);
 
                         // 3. Insert bill
+                        bills.Checkin_id = (int)checkinId;
                         billsRepository.insertWithTransaction(con, tran, bills);
 
 
