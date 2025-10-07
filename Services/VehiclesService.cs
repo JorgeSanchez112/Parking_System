@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.Emit;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -71,7 +72,17 @@ namespace Parking.Services
         public void setVehicleState(Vehicles vehicles)
         {
 
-            string currentState = _vehiclesRepository.GetStateByLicensePlate(vehicles.License_plate).ToString();
+            string currentState;
+            String regexBike = @"^\d+$";
+
+            if (Regex.IsMatch(vehicles.License_plate, regexBike))
+            {
+                currentState = _vehiclesRepository.GetStateByOwnerId(vehicles.License_plate).ToString();
+            }
+            else
+            {
+                currentState = _vehiclesRepository.GetStateByLicensePlate(vehicles.License_plate).ToString();
+            }
 
             if (_vehiclesRepository.GetStateByLicensePlate(vehicles.License_plate).Equals(VehicleStateCode.activo))
             {
@@ -88,8 +99,18 @@ namespace Parking.Services
 
         public void setVehicleStateWhatever(Vehicles vehicles)
         {
+            string currentState;
+            String regexBike = @"^\d+$";
 
-            string currentState = _vehiclesRepository.GetStateByLicensePlate(vehicles.License_plate).ToString();
+            if (Regex.IsMatch(vehicles.License_plate, regexBike))
+            {
+                currentState = _vehiclesRepository.GetStateByOwnerId(vehicles.License_plate).ToString();
+            }
+            else
+            {
+                currentState = _vehiclesRepository.GetStateByLicensePlate(vehicles.License_plate).ToString();
+            }
+               
 
             if (_vehiclesRepository.GetStateByLicensePlate(vehicles.License_plate).Equals(VehicleStateCode.inactivo))
             {
