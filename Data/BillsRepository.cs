@@ -24,8 +24,6 @@ namespace Parking.Data
                 cmd.Parameters.AddWithValue("@release_date", bills.Release_date);
                 cmd.Parameters.AddWithValue("@checkin_Time", bills.Checkin_Time);
 
-                Console.WriteLine($"Checkin_id={bills.Checkin_id}, Parking_id={bills.Parking_id}, Total_pay={bills.Total_pay}, Release_date={bills.Release_date}, Checkin_Time={bills.Checkin_Time}");
-
                 cmd.ExecuteNonQuery();
             }
         }
@@ -126,8 +124,6 @@ namespace Parking.Data
                 cmd.Parameters.AddWithValue("@total_pay", bills.Total_pay);
                 cmd.Parameters.AddWithValue("@release_date", bills.Release_date);
                 cmd.Parameters.AddWithValue("@checkin_Time", bills.Checkin_Time);
-
-                Console.WriteLine($"Checkin_id={bills.Checkin_id}, Parking_id={bills.Parking_id}, Total_pay={bills.Total_pay}, Release_date={bills.Release_date}, Checkin_Time={bills.Checkin_Time}");
 
                 cmd.ExecuteNonQuery();
             }

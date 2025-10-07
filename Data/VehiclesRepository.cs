@@ -214,7 +214,7 @@ namespace Parking.Data
             {
                 con.Open();
                 var cmd = con.CreateCommand();
-                cmd.CommandText = "SELECT State From Vehicles WHERE License_plate = @plate";
+                cmd.CommandText = "SELECT State From Vehicles WHERE Owner_id = @ownerId";
                 cmd.Parameters.AddWithValue("@ownerId", _ownerId);
 
                 using (var reader = cmd.ExecuteReader())
@@ -235,17 +235,32 @@ namespace Parking.Data
 
         public void UpdateStateByLicensePlate(Vehicles vehicles)
         {
-           using (var con = DbConnectionFactory.GetConnection())
+            using (var con = DbConnectionFactory.GetConnection())
            {
                con.Open();
                var cmd = con.CreateCommand();
 
                cmd.CommandText = @"UPDATE vehicles SET State=@state WHERE License_plate=@plate";
                cmd.Parameters.AddWithValue("@plate", vehicles.License_plate);
+               cmd.Parameters.AddWithValue("@state", vehicles.State);
+
+               cmd.ExecuteNonQuery();
+           }
+        }
+
+        public void UpdateStateByOwnerId(Vehicles vehicles)
+        {
+            using (var con = DbConnectionFactory.GetConnection())
+            {
+                con.Open();
+                var cmd = con.CreateCommand();
+
+                cmd.CommandText = @"UPDATE vehicles SET State=@state WHERE Owner_id=@owner_id";
+                cmd.Parameters.AddWithValue("@owner_id", vehicles.Owner_id);
                 cmd.Parameters.AddWithValue("@state", vehicles.State);
 
                 cmd.ExecuteNonQuery();
-           }
+            }
         }
 
         public void Delete(Vehicles vehicles)

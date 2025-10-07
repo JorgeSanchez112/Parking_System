@@ -59,12 +59,12 @@ namespace Parking.Services
 
         public bool isVehicleStateActive(String licensePlate)
         {
-
             return _vehiclesRepository.GetStateByLicensePlate(licensePlate).Equals(VehicleStateCode.activo);
         }
 
         public bool IsVehicleStateActiveByOwner(string ownerId)
         {
+            Console.WriteLine(ownerId);
             return _vehiclesRepository.GetStateByOwnerId(ownerId) == VehicleStateCode.activo;
         }
 
@@ -72,54 +72,68 @@ namespace Parking.Services
         public void setVehicleState(Vehicles vehicles)
         {
 
-            string currentState;
-            String regexBike = @"^\d+$";
+            Boolean vehicleWithMotor = validateTypeVehicleByIdentification(vehicles);
 
-            if (Regex.IsMatch(vehicles.License_plate, regexBike))
-            {
-                currentState = _vehiclesRepository.GetStateByOwnerId(vehicles.License_plate).ToString();
-            }
-            else
-            {
-                currentState = _vehiclesRepository.GetStateByLicensePlate(vehicles.License_plate).ToString();
-            }
 
-            if (_vehiclesRepository.GetStateByLicensePlate(vehicles.License_plate).Equals(VehicleStateCode.activo))
+            if (vehicleWithMotor.Equals(true) && validateStateVehicle(vehicles, vehicleWithMotor))
             {
                 _vehiclesRepository.UpdateStateByLicensePlate(vehicles);
-                Console.WriteLine($"Estado actualizado a {vehicles.State} para placa {vehicles.License_plate}");
+            }
+            else if(vehicleWithMotor.Equals(false) && validateStateVehicle(vehicles, vehicleWithMotor))
+            {
+                _vehiclesRepository.UpdateStateByOwnerId(vehicles);
+
+            } else {
+                Console.WriteLine($"Estado no actualizado.");
+            }
+
+        }
+
+
+        private Boolean validateTypeVehicleByIdentification(Vehicles vehicles)
+        {
+            String regexBike = @"^\d+$";
+
+            if (!String.IsNullOrEmpty(vehicles.Owner_id) && Regex.IsMatch(vehicles.Owner_id, regexBike))
+            {
+                return false;
             }
             else
             {
-                Console.WriteLine($"Estado no actualizado. Estado actual en BD: {currentState}");
+                return true;
             }
-                
+        }
 
+        private Boolean validateStateVehicle(Vehicles vehicles, Boolean vehicleWithMotor)
+        {
+            if (vehicleWithMotor.Equals(true))
+            {
+                return isVehicleStateActive(vehicles.License_plate);
+                //Console.WriteLine($"Estado actualizado a {vehicles.State} para placa {vehicles.License_plate}");
+            }
+            else
+            {
+                return IsVehicleStateActiveByOwner(vehicles.Owner_id);
+            }
         }
 
         public void setVehicleStateWhatever(Vehicles vehicles)
         {
-            string currentState;
-            String regexBike = @"^\d+$";
+            Boolean vehicleWithMotor = validateTypeVehicleByIdentification(vehicles);
 
-            if (Regex.IsMatch(vehicles.License_plate, regexBike))
-            {
-                currentState = _vehiclesRepository.GetStateByOwnerId(vehicles.License_plate).ToString();
-            }
-            else
-            {
-                currentState = _vehiclesRepository.GetStateByLicensePlate(vehicles.License_plate).ToString();
-            }
-               
 
-            if (_vehiclesRepository.GetStateByLicensePlate(vehicles.License_plate).Equals(VehicleStateCode.inactivo))
+            if (vehicleWithMotor.Equals(true) && !validateStateVehicle(vehicles, vehicleWithMotor))
             {
                 _vehiclesRepository.UpdateStateByLicensePlate(vehicles);
-                Console.WriteLine($"Estado actualizado a {vehicles.State} para placa {vehicles.License_plate}");
+            }
+            else if (vehicleWithMotor.Equals(false) && !validateStateVehicle(vehicles, vehicleWithMotor))
+            {
+                _vehiclesRepository.UpdateStateByOwnerId(vehicles);
+
             }
             else
             {
-                Console.WriteLine($"Estado no actualizado. Estado actual en BD: {currentState}");
+                Console.WriteLine($"Estado no actualizado.");
             }
 
 

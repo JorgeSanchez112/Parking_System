@@ -8,8 +8,10 @@ using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static System.Windows.Forms.AxHost;
 
 namespace Parking
 {
@@ -535,6 +537,20 @@ namespace Parking
 
                 if (isVip)
                 {
+                    String regexNumeric = @"^\d+$";
+
+                    if (String.IsNullOrEmpty(textBoxSpecialFee.Text))
+                    {
+                        showTemporaryMessage(labelMessageError, "VIP: EL CAMPO COSTO NO PUEDE ESTAR VACIO", 4000);
+                        return;
+                    }
+
+                    if (!Regex.IsMatch(textBoxSpecialFee.Text, regexNumeric))
+                    {
+                        showTemporaryMessage(labelMessageError, "VIP: EL CAMPO SOLO PERMITE NUMEROS", 4000);
+                        return;
+                    }
+
                     Bills bill = new Bills
                     {
                         Parking_id = 1,
@@ -579,6 +595,21 @@ namespace Parking
 
                 if (isVip)
                 {
+
+                    String regexNumeric = @"^\d+$";
+
+                    if (String.IsNullOrEmpty(textBoxSpecialFee.Text))
+                    {
+                        showTemporaryMessage(labelMessageError, "VIP: EL CAMPO COSTO NO PUEDE ESTAR VACIO", 4000);
+                        return;
+                    }
+
+                    if (!Regex.IsMatch(textBoxSpecialFee.Text, regexNumeric))
+                    {
+                        showTemporaryMessage(labelMessageError, "VIP: EL CAMPO SOLO PERMITE NUMEROS", 4000);
+                        return;
+                    }
+
                     Bills bill = new Bills
                     {
                         Parking_id = 1,
@@ -587,12 +618,12 @@ namespace Parking
                     };
 
                     _parking_service_register_checkin_with_bill(existingVehicle.Id, checkin, ticket, bill);
-                    changeVehicleStateToActive(existingVehicle.License_plate);
+                    changeVehicleStateToActive(String.IsNullOrEmpty(existingVehicle.License_plate) ? existingVehicle.Owner_id : existingVehicle.License_plate);
                 }
                 else
                 {
                     _parking_service_register_checkin(existingVehicle.Id, checkin, ticket);
-                    changeVehicleStateToActive(existingVehicle.License_plate);
+                    changeVehicleStateToActive(String.IsNullOrEmpty(existingVehicle.License_plate) ? existingVehicle.Owner_id : existingVehicle.License_plate);
                 }
             }
 
@@ -915,20 +946,49 @@ namespace Parking
 
         private void changeVehicleStateToInactive(string licensePlate)
         {
-            var v = new Vehicles { License_plate = licensePlate, State = VehicleStateCode.inactivo.ToString() };
-            _vehiclesService.setVehicleState(v);
+            String regexBike = @"^\d+$";
+
+            Vehicles v = new Vehicles();
+
+            if (Regex.IsMatch(licensePlate, regexBike))
+            {
+                v.Owner_id = licensePlate;
+                v.State = VehicleStateCode.inactivo.ToString();
+            }
+            else
+            {
+                v.License_plate = licensePlate;
+                v.State = VehicleStateCode.inactivo.ToString();
+            }
+
+                _vehiclesService.setVehicleState(v);
         }
 
         private void changeVehicleStateToActive(string licensePlate)
         {
-            var v = new Vehicles { License_plate = licensePlate, State = VehicleStateCode.activo.ToString() };
+
+            String regexBike = @"^\d+$";
+
+            Vehicles v = new Vehicles();
+
+            if (Regex.IsMatch(licensePlate, regexBike))
+            {
+                v.Owner_id = licensePlate;
+                v.State = VehicleStateCode.activo.ToString();
+            }
+            else
+            {
+                v.License_plate = licensePlate;
+                v.State = VehicleStateCode.activo.ToString();
+            }
+
             _vehiclesService.setVehicleStateWhatever(v);
         }
 
         private void changeCheckinStateToFacturado(int checkinId)
         {
-            var c = new Checkins { Id = checkinId, State = CheckinsStateCode.facturado.ToString() };
-            var svc = new CheckinsService();
+            Checkins c = new Checkins { Id = checkinId, State = CheckinsStateCode.facturado.ToString() };
+            CheckinsService svc = new CheckinsService();
             svc.setCheckinState(c);
         }
 
