@@ -350,7 +350,7 @@ namespace Parking
         private void pictureBox1_Click(object sender, EventArgs e)
         {
             SetVehicleInputUI("INGRESAR CARRO", 6, VehicleTypeCode.Car,
-                carClickedStyle, carDefaultStyle, motorBikeDefaultStyle, bikeDefaultStyle);
+                carClickedStyle, bikeDefaultStyle, motorBikeDefaultStyle, carDefaultStyle);
         }
 
         private void pictureBox2_Click(object sender, EventArgs e)
