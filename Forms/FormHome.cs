@@ -96,7 +96,11 @@ namespace Parking
         {
             if (e.KeyChar != (char)Keys.Enter) return;
 
-            string scannedCode = textBoxScanner.Text?.Trim();
+            //  Clean the scanned text — remove asterisks and trim spaces
+            string scannedCode = textBoxScanner.Text?
+                .Replace("*", string.Empty)   // removes all asterisks
+                .Trim();
+
             if (string.IsNullOrEmpty(scannedCode))
             {
                 focusScanner();

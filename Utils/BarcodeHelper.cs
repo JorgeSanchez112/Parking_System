@@ -16,15 +16,13 @@ namespace Parking.Utils
 
         public static String GenerateUniqueCodebar(String prefix = "TKT")
         {
-            var timeStamp = DateTime.UtcNow.ToString("yyyyMMddHHmmssfff");
-            var random = Guid.NewGuid().ToString("N").Substring(0, 6);
+            long ticks = DateTime.UtcNow.Ticks;
+            string base36 = ToBase36(ticks);
+            string shortCode = base36.Length > 5
+            ? base36.Substring(base36.Length - 5)
+            : base36.PadLeft(5, '0');
 
-            using SHA256 sha = SHA256.Create();
-
-            var hashBytes = sha.ComputeHash(Encoding.UTF8.GetBytes(timeStamp + random));
-            var hashShort = BitConverter.ToString(hashBytes).Replace("-", "").Substring(0, 6);
-
-            return $"{prefix}-{timeStamp}-{hashShort}";
+            return shortCode;
         }
 
         public static Bitmap GenerateBarcodeImage(String code, int width, int height)
@@ -36,11 +34,27 @@ namespace Parking.Utils
                 {
                     Width = width,
                     Height = height,
-                    Margin = 2
+                    Margin = 1
                 }
             };
 
             return writer.Write(code);
         }
+
+        private static string ToBase36(long value)
+        {
+            const string chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            var sb = new StringBuilder();
+
+            do
+            {
+                sb.Insert(0, chars[(int)(value % 36)]);
+                value /= 36;
+            } while (value > 0);
+
+            return sb.ToString();
+        }
+
     }
+
 }

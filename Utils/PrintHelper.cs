@@ -47,7 +47,15 @@ namespace Parking.Utils
             Font fontNormal = new Font("Arial", 8, FontStyle.Regular);
             Font frontBold = new Font("Arial", 9, FontStyle.Bold);
 
+
+
             String typeVehicleSpanish = _vehiclesTypesService.GetVehicleTypeSpanish(_printData.VehicleType);
+
+            int pageWidth = e.PageBounds.Width;
+            int barcodeWidth = pageWidth - (10 * 2);
+
+            int drawWidth = e.PageBounds.Width - 10;  // full width minus margin
+            int drawHeight = 90;
 
 
             if (typeVehicleSpanish.Equals("Bicicleta")){
@@ -73,8 +81,8 @@ namespace Parking.Utils
                 g.DrawString($"Valor minuto: ${_printData.FeePerMinute}", fontNormal, Brushes.Black, new PointF(10, y));
                 y += 40;
 
-                g.DrawImage(BarcodeHelper.GenerateBarcodeImage(_printData.TicketCode, 120, 60), new Rectangle(50, y, 120, 60));
-                y += 70;
+                g.DrawImage(BarcodeHelper.GenerateBarcodeImage(_printData.TicketCode, drawWidth, drawHeight), new Rectangle(5, y, 180, drawHeight));
+                y += 110;
 
                 y += DrawWrappedText(g, _printData.TicketInfo ?? "", fontNormal, Brushes.Black, 10, y, e.PageBounds.Width - 20) + 10;
 
