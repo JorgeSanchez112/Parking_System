@@ -112,6 +112,42 @@ namespace Parking.Data
             return null;
         }
 
+        public Bills getBillById(int billId)
+        {
+            using (var con = DbConnectionFactory.GetConnection())
+            {
+                con.Open();
+                var cmd = con.CreateCommand();
+
+                cmd.CommandText = @"
+                SELECT Id, Checkin_id, Parking_id, Total_pay, Release_date, Checkin_Time
+                FROM bills
+                WHERE Id = @billId
+                LIMIT 1;
+                ";
+
+                    cmd.Parameters.AddWithValue("@billId", billId);
+
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            return new Bills
+                            {
+                                Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                                Checkin_id = reader.GetInt32(reader.GetOrdinal("Checkin_id")),
+                                Parking_id = reader.GetInt32(reader.GetOrdinal("Parking_id")),
+                                Total_pay = reader.GetInt32(reader.GetOrdinal("Total_pay")),
+                                Release_date = reader.GetDateTime(reader.GetOrdinal("Release_date")),
+                                Checkin_Time = reader.GetDateTime(reader.GetOrdinal("Checkin_Time"))
+                            };
+                        }
+                    }
+                }
+
+            return null;
+        }
+
         public void insertWithTransaction(SqliteConnection con, SqliteTransaction tran, Bills bills)
         {
             using (var cmd = con.CreateCommand())
@@ -244,6 +280,7 @@ namespace Parking.Data
                         v.License_plate,
                         v.Owner_id,
                         c.EntryTime,
+                        c.State as Checkin_State,
                         b.Release_date AS ExitTime,
                         b.Total_pay,
                         t.Codebar
@@ -275,6 +312,8 @@ namespace Parking.Data
                             VehicleInfo = !string.IsNullOrWhiteSpace(reader["License_plate"]?.ToString())
                                         ? reader["License_plate"].ToString()
                                         : (reader["Owner_id"]?.ToString() ?? ""),
+
+                            CheckinState = reader["Checkin_State"].ToString() ?? "",
 
 
                             EntryTime = reader["EntryTime"] != DBNull.Value ? Convert.ToDateTime(reader["EntryTime"]) : DateTime.MinValue,

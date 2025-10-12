@@ -43,5 +43,10 @@ namespace Parking.Services
             return _billsRepository.GetLastBillId();
         }
 
+        public Bills getBillById(int billId)
+        {
+            return _billsRepository.getBillById(billId);
+        }
+
     }
 }

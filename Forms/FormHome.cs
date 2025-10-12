@@ -345,6 +345,17 @@ namespace Parking
 
         private void listaVehiculosToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            
+            var existingForm = Application.OpenForms
+            .OfType<FormVehiculesHistory>()
+            .FirstOrDefault();
+
+            if (existingForm != null)
+            {
+                existingForm.Close();
+            }
+
+            // Not open → create and show new instance
             var history = new FormVehiculesHistory();
             history.FormClosed += (s, args) => focusScanner();
             history.Show();
@@ -636,7 +647,7 @@ namespace Parking
             printTicket();
         }
 
-        // small wrappers to avoid repeating service method names inline (keeps single responsibility)
+        // small wrappers to avoid repeating service method names inline 
         private void _parking_service_register_vehicle_checkin(Vehicles vehicle, Checkins checkin, Tickets ticket)
             => _parkingService.RegisterVehicleCheckin(vehicle, checkin, ticket);
 
@@ -804,8 +815,16 @@ namespace Parking
             {
                 int ticketId = _ticketsService.getLastIndex();
                 var printData = _ticketsService.getPrintData(ticketId);
+                Bills bill = _billsService.getBillById(_billsService.getLastIndex());
+         
                 if (printData != null)
                 {
+
+                    if (bill != null && printData.CheckinState.Equals(CheckinsStateCode.vip.ToString()))
+                    {
+                        printData.TotalPay = bill.Total_pay;
+                    }
+
                     PrintHelper.printTicket(printData);
                     showTemporarySuccesMessage(labelMessageError, "IMPRIMIENDO TICKET", 3000);
                 }
@@ -899,6 +918,7 @@ namespace Parking
         {
             labelTextSpecialFee.Visible = true;
             textBoxSpecialFee.Visible = true;
+            textBoxSpecialFee.Clear();
             guardarVIP.Visible = true;
 
             tableLayoutPanel1.SetRow(labelTextSpecialFee, 12);
@@ -1012,7 +1032,7 @@ namespace Parking
             textBox2.SelectionStart = Math.Min(selStart, textBox2.Text.Length);
         }
 
-        private void buttonFocuScanner_Click(object sender, EventArgs e) { /* reserved for UI */ }
+        private void buttonFocuScanner_Click(object sender, EventArgs e) { showTemporarySuccesMessage(labelMessageError, "ESCANEAR", 3000); }
         private void textBoxScanner_TextChanged_1(object sender, EventArgs e) { /* reserved for UI */ }
 
         private void buttonVIP_Click(object sender, EventArgs e)

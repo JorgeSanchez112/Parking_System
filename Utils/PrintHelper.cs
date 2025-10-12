@@ -66,6 +66,8 @@ namespace Parking.Utils
 
             if(printMode.Equals("Ticket"))
             {
+                Console.WriteLine(_printData.CheckinState);
+
                 g.DrawString($"{_printData.ParkingName}", frontBold, Brushes.Black, new PointF(50, y)); //Needed centralized
                 y += 20;
                 g.DrawString($"Nit: {_printData.ParkingNit}", fontNormal, Brushes.Black, new PointF(50, y)); //Needed centralized
@@ -78,7 +80,15 @@ namespace Parking.Utils
                 y += 20;
                 g.DrawString($"Tipo: {typeVehicleSpanish}", fontNormal, Brushes.Black, new PointF(10, y));
                 y += 20;
-                g.DrawString($"Valor minuto: ${_printData.FeePerMinute}", fontNormal, Brushes.Black, new PointF(10, y));
+
+                if (_printData.CheckinState.Equals(CheckinsStateCode.vip.ToString()))
+                {
+                    g.DrawString($"Tarifa unica: ${_printData.TotalPay}", fontNormal, Brushes.Black, new PointF(10, y));
+                }
+                else
+                {
+                    g.DrawString($"Valor minuto: ${_printData.FeePerMinute}", fontNormal, Brushes.Black, new PointF(10, y));
+                }
                 y += 40;
 
                 g.DrawImage(BarcodeHelper.GenerateBarcodeImage(_printData.TicketCode, drawWidth, drawHeight), new Rectangle(5, y, 180, drawHeight));
@@ -104,7 +114,7 @@ namespace Parking.Utils
 
                 y += DrawWrappedText(g, $"Salida: {_printData.ExitTime}", fontNormal, Brushes.Black, 10, y, e.PageBounds.Width - 20) + 10;
 
-                g.DrawString($"Valor minuto: ${_printData.FeePerMinute}", fontNormal, Brushes.Black, new PointF(10, y));
+                g.DrawString($"Valor minuto: ${_printData?.FeePerMinute ?? 0}", fontNormal, Brushes.Black, new PointF(10, y));
                 y += 20;
                 g.DrawString($"Pago total: {_printData.TotalPay}", fontNormal, Brushes.Black, new PointF(10, y));
                 y += 20;
