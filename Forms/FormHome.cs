@@ -414,10 +414,13 @@ namespace Parking
             {
                 bool allDigits = !string.IsNullOrEmpty(textBox1.Text) && textBox1.Text.All(char.IsDigit);
                 buttonSaveVehicle.Enabled = allDigits;
+                guardarVIP.Enabled = allDigits;
+
             }
             else
             {
                 buttonSaveVehicle.Enabled = !string.IsNullOrWhiteSpace(textBox1.Text);
+                guardarVIP.Enabled = !string.IsNullOrWhiteSpace(textBox1.Text);
             }
         }
 
